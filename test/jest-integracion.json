@@ -1,0 +1,10 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "..",
+  "testEnvironment": "node",
+  "testRegex": "test/(integracion|e2e)/.*spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "test/tsconfig.json" }]
+  },
+  "transformIgnorePatterns": ["node_modules/(?!(\\.pnpm/[^/]*@scalar\\+[^/]*/|@scalar/))"]
+}

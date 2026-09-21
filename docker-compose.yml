@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgis/postgis:16-3.5
+    container_name: elinain-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: elinain
+      POSTGRES_PASSWORD: elinain
+      POSTGRES_DB: elinain
+    ports:
+      - '5433:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U elinain -d elinain']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:
