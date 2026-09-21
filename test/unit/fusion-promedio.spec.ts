@@ -1,4 +1,8 @@
-import { calcularFusionCompra } from '../../src/compras/calculo-fusion';
+import {
+  calcularFusionCompra,
+  calcularReversionEdicionCompra,
+  calcularReversionEliminacionCompra,
+} from '../../src/compras/calculo-fusion';
 
 describe('Cálculo de fusión de compras y promedio simple (MVP-016 / RF-11)', () => {
   it('fija el promedio base cuando el contrato nace con peso nulo y no hay compras previas', () => {
@@ -88,5 +92,50 @@ describe('Cálculo de fusión de compras y promedio simple (MVP-016 / RF-11)', (
 
     expect(resultado.nuevaCantidadActual).toBe(40);
     expect(resultado.nuevoPesoPromedioActual).toBe(325.2833);
+  });
+});
+
+describe('Cálculo de reversión de compras sin ventas (MVP-018 / RF-13)', () => {
+  it('revierte la cantidad a 0 y peso a null cuando se elimina la única compra del contrato', () => {
+    const resultado = calcularReversionEliminacionCompra({
+      cantidadContrato: 20,
+      cantidadCompraEliminada: 20,
+      pesosComprasRestantes: [],
+    });
+
+    expect(resultado.nuevaCantidadActual).toBe(0);
+    expect(resultado.nuevoPesoPromedioActual).toBeNull();
+  });
+
+  it('recalcula el promedio simple de las compras restantes al eliminar una compra', () => {
+    // Quedaban 3 compras: 300, 360, 420 (promedio 360, cantidad 60).
+    // Se elimina la compra de 420 kg (cantidad 10).
+    // Restantes: 300 y 360.
+    // Nuevo promedio: (300 + 360) / 2 = 330.
+    // Nueva cantidad: 60 - 10 = 50.
+    const resultado = calcularReversionEliminacionCompra({
+      cantidadContrato: 60,
+      cantidadCompraEliminada: 10,
+      pesosComprasRestantes: [300, 360],
+    });
+
+    expect(resultado.nuevaCantidadActual).toBe(50);
+    expect(resultado.nuevoPesoPromedioActual).toBe(330);
+  });
+
+  it('recalcula el saldo y peso al editar la cantidad y peso de una compra', () => {
+    // Contrato tenía 60 animales, promedio (300 + 360) / 2 = 330
+    // Compra 2 cambia de 360 kg a 380 kg y de 40 animales a 45 animales (+5 animales)
+    // Nueva cantidad: 60 - 40 + 45 = 65
+    // Nuevo promedio simple: (300 + 380) / 2 = 340
+    const resultado = calcularReversionEdicionCompra({
+      cantidadContrato: 60,
+      cantidadViejaCompra: 40,
+      cantidadNuevaCompra: 45,
+      pesosActualizados: [300, 380],
+    });
+
+    expect(resultado.nuevaCantidadActual).toBe(65);
+    expect(resultado.nuevoPesoPromedioActual).toBe(340);
   });
 });

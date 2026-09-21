@@ -1,33 +1,37 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ComprasService } from './compras.service';
 import { CrearCompraDto } from './dto/crear-compra.dto';
+import { ActualizarCompraDto } from './dto/actualizar-compra.dto';
 import { CompraRespuestaDto } from './dto/compra-respuesta.dto';
 import { PaginaComprasDto } from './dto/pagina-compras.dto';
-import { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
+import { ListarComprasQueryDto } from './dto/listar-compras-query.dto';
 import type { PaginaResultado } from '../common/dto/pagina-respuesta.dto';
 import {
+  RespuestaErrorConflictoDto,
   RespuestaErrorNoAutorizadoDto,
   RespuestaErrorNoEncontradoDto,
   RespuestaErrorServidorDto,
@@ -110,17 +114,10 @@ export class ComprasController {
     description: 'Listado de compras obtenido exitosamente',
     type: PaginaComprasDto,
   })
-  @ApiQuery({
-    name: 'contrato_id',
-    required: false,
-    type: String,
-    description: 'Filtrar compras por ID de contrato',
-  })
   async listar(
-    @Query('contrato_id') contratoId?: string,
-    @Query() paginacion?: PaginacionQueryDto,
+    @Query() query?: ListarComprasQueryDto,
   ): Promise<PaginaResultado<CompraRespuestaDto>> {
-    return this.servicio.listar(contratoId, paginacion);
+    return this.servicio.listar(query?.contrato_id, query);
   }
 
   @Get(':id')
@@ -162,5 +159,96 @@ export class ComprasController {
   })
   async buscarPorId(@Param('id', ParseUUIDPipe) id: string): Promise<CompraRespuestaDto> {
     return this.servicio.buscarPorId(id);
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: 'Actualiza una compra en un contrato sin ventas registradas',
+    description:
+      'Permite editar una compra solo si el contrato aún no posee registros de venta. Si ya posee ventas, rechaza con 409 Conflict. Recalcula el valor_total y revierte/reaplica el saldo y peso promedio del contrato.',
+  })
+  @ApiOkResponse({
+    description: 'Compra actualizada y contrato sincronizado exitosamente',
+    type: CompraRespuestaDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Datos de actualización inválidos o identificador no es UUID válido',
+    type: RespuestaErrorValidacionDto,
+    example: {
+      exito: false,
+      mensaje: 'Error de validación en la solicitud: La cantidad debe ser mayor que cero',
+      codigoEstado: 400,
+      errores: ['La cantidad debe ser mayor que cero'],
+      ruta: '/api/v1/compras/3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
+  })
+  @ApiNotFoundResponse({
+    description: 'Compra no encontrada',
+    type: RespuestaErrorNoEncontradoDto,
+    example: {
+      exito: false,
+      mensaje: 'Compra no encontrada',
+      codigoEstado: 404,
+      ruta: '/api/v1/compras/3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
+  })
+  @ApiConflictResponse({
+    description: 'Conflicto de integridad financiera: el contrato ya posee ventas registradas',
+    type: RespuestaErrorConflictoDto,
+    example: {
+      exito: false,
+      mensaje: 'No se puede editar una compra de un contrato que ya posee ventas registradas',
+      codigoEstado: 409,
+      ruta: '/api/v1/compras/3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
+  })
+  async actualizar(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ActualizarCompraDto,
+  ): Promise<CompraRespuestaDto> {
+    return this.servicio.actualizar(id, dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Elimina una compra en un contrato sin ventas registradas',
+    description:
+      'Permite eliminar una compra solo si el contrato aún no posee registros de venta. Si ya posee ventas, rechaza con 409 Conflict. Revierte algorítmicamente la cantidad y peso del contrato.',
+  })
+  @ApiOkResponse({
+    description: 'Compra eliminada exitosamente',
+  })
+  @ApiBadRequestResponse({
+    description: 'Identificador UUID con formato inválido',
+    type: RespuestaErrorValidacionDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Compra no encontrada',
+    type: RespuestaErrorNoEncontradoDto,
+    example: {
+      exito: false,
+      mensaje: 'Compra no encontrada',
+      codigoEstado: 404,
+      ruta: '/api/v1/compras/3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
+  })
+  @ApiConflictResponse({
+    description: 'Conflicto de integridad financiera: el contrato ya posee ventas registradas',
+    type: RespuestaErrorConflictoDto,
+    example: {
+      exito: false,
+      mensaje: 'No se puede eliminar una compra de un contrato que ya posee ventas registradas',
+      codigoEstado: 409,
+      ruta: '/api/v1/compras/3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
+  })
+  async eliminar(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    return this.servicio.eliminar(id);
   }
 }

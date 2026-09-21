@@ -55,3 +55,82 @@ export function calcularFusionCompra(parametros: ParametrosFusionCompra): Result
     nuevoPesoPromedioActual: pesoRedondeado,
   };
 }
+
+export interface ParametrosReversionEliminacion {
+  cantidadContrato: number | null;
+  cantidadCompraEliminada: number;
+  pesosComprasRestantes: number[];
+}
+
+export interface ResultadoReversionCompra {
+  nuevaCantidadActual: number;
+  nuevoPesoPromedioActual: number | null;
+}
+
+/**
+ * Revierte el saldo y peso del contrato tras eliminar una compra (RF-13).
+ * Si no quedan compras, cantidad pasa a 0 y peso_promedio_actual pasa a null.
+ */
+export function calcularReversionEliminacionCompra(
+  parametros: ParametrosReversionEliminacion,
+): ResultadoReversionCompra {
+  const { cantidadContrato, cantidadCompraEliminada, pesosComprasRestantes } = parametros;
+
+  const nuevaCantidad = Math.max(0, (cantidadContrato ?? 0) - cantidadCompraEliminada);
+
+  if (pesosComprasRestantes.length === 0) {
+    return {
+      nuevaCantidadActual: 0,
+      nuevoPesoPromedioActual: null,
+    };
+  }
+
+  const suma = pesosComprasRestantes.reduce((acumulado, peso) => acumulado + peso, 0);
+  const promedio = suma / pesosComprasRestantes.length;
+  const factor = 10000;
+  const pesoRedondeado = Math.round(promedio * factor) / factor;
+
+  return {
+    nuevaCantidadActual: nuevaCantidad,
+    nuevoPesoPromedioActual: pesoRedondeado,
+  };
+}
+
+export interface ParametrosReversionEdicion {
+  cantidadContrato: number | null;
+  cantidadViejaCompra: number;
+  cantidadNuevaCompra: number;
+  pesosActualizados: number[];
+}
+
+/**
+ * Revierte y reaplica el saldo y peso del contrato tras editar una compra (RF-13).
+ */
+export function calcularReversionEdicionCompra(
+  parametros: ParametrosReversionEdicion,
+): ResultadoReversionCompra {
+  const { cantidadContrato, cantidadViejaCompra, cantidadNuevaCompra, pesosActualizados } =
+    parametros;
+
+  const nuevaCantidad = Math.max(
+    0,
+    (cantidadContrato ?? 0) - cantidadViejaCompra + cantidadNuevaCompra,
+  );
+
+  if (pesosActualizados.length === 0) {
+    return {
+      nuevaCantidadActual: nuevaCantidad,
+      nuevoPesoPromedioActual: null,
+    };
+  }
+
+  const suma = pesosActualizados.reduce((acumulado, peso) => acumulado + peso, 0);
+  const promedio = suma / pesosActualizados.length;
+  const factor = 10000;
+  const pesoRedondeado = Math.round(promedio * factor) / factor;
+
+  return {
+    nuevaCantidadActual: nuevaCantidad,
+    nuevoPesoPromedioActual: pesoRedondeado,
+  };
+}
