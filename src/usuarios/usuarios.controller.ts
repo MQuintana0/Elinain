@@ -13,6 +13,7 @@ import { CredencialesAccesoDto } from './dto/acceso-usuario.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { UsuarioRegistradoDto } from './dto/usuario-registrado.dto';
 import { UsuariosService } from './usuarios.service';
+import { RutaPublica } from '../common/seguridad/ruta-publica.decorator';
 
 @ApiTags('usuarios')
 @Controller('usuarios')
@@ -23,6 +24,7 @@ export class UsuariosController {
   ) {}
 
   @Post('registro')
+  @RutaPublica()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registra el perfil del comerciante' })
   @ApiCreatedResponse({ description: 'Comerciante registrado', type: UsuarioRegistradoDto })
@@ -31,6 +33,7 @@ export class UsuariosController {
   }
 
   @Post('acceso')
+  @RutaPublica()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Inicia sesión y emite el JWT de acceso' })
   @ApiOkResponse({ description: 'Acceso concedido', type: AccesoRespuestaDto })

@@ -2,7 +2,8 @@
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": "..",
   "testEnvironment": "node",
-  "testRegex": "test/(integracion|e2e)/.*spec\\.ts$",
+  "maxWorkers": 1,
+  "testRegex": "test/(unit|integracion|e2e)/.*spec\\.ts$",
   "transform": {
     "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "test/tsconfig.json" }]
   },

@@ -15,6 +15,7 @@ export interface UsuarioAutenticado {
 
 export interface PeticionConUsuario extends Request {
   usuario?: UsuarioAutenticado;
+  usuarioId?: string;
 }
 
 @Injectable()
@@ -38,6 +39,7 @@ export class AccesoGuard implements CanActivate {
         throw new UnauthorizedException('Token inválido o expirado');
       }
       peticion.usuario = { id: carga.sub, email: carga.email };
+      peticion.usuarioId = carga.sub;
       return true;
     } catch (error) {
       if (error instanceof UnauthorizedException) {

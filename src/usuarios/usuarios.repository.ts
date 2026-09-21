@@ -24,20 +24,20 @@ export class UsuariosRepository {
   constructor(@Inject(BD_USUARIOS) private readonly bd: AccesoBdUsuarios) {}
 
   async buscarPorEmail(email: string): Promise<FilaUsuario | undefined> {
-    const filas = await this.bd
-      .obtenerDb()
-      .select()
-      .from(usuarios)
-      .where(eq(usuarios.email, email));
-    return filas[0];
+    return this.bd.ejecutarEnContextoAutenticacion(email, async (transaccion) => {
+      const filas = await transaccion.select().from(usuarios).where(eq(usuarios.email, email));
+      return filas[0];
+    });
   }
 
   async crear(datos: DatosCrearUsuario): Promise<FilaUsuario> {
-    const filas = await this.bd.obtenerDb().insert(usuarios).values(datos).returning();
-    const fila = filas[0] as FilaUsuario | undefined;
-    if (!fila) {
-      throw new Error('No se pudo crear el usuario');
-    }
-    return fila;
+    return this.bd.ejecutarEnContextoAutenticacion(datos.email, async (transaccion) => {
+      const filas = await transaccion.insert(usuarios).values(datos).returning();
+      const fila = filas[0] as FilaUsuario | undefined;
+      if (!fila) {
+        throw new Error('No se pudo crear el usuario');
+      }
+      return fila;
+    });
   }
 }
