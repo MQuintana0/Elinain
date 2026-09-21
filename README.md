@@ -1,56 +1,97 @@
-# Elinain: del cuaderno al reparto exacto de utilidades ganaderas
+# Elinain
 
-Backend MVP en NestJS para comerciantes ganaderos que compran, engordan y venden bovinos en participación con dueños de finca. Centraliza terceros, fincas, contratos (1 contrato = 1 lote), compras, ventas, ciclos y costos, y automatiza el cálculo financiero (promedio ponderado, utilidad real y reparto) con aislamiento multi-tenant estricto por comerciante.
+Backend MVP en NestJS para comerciantes ganaderos que compran, engordan y venden bovinos en participación con dueños de finca. Centraliza terceros, fincas, contratos (1 contrato = 1 lote), compras, ventas, ciclos y costos, y automatiza el cálculo financiero con aislamiento multi-tenant estricto por comerciante.
 
-## Quick path
+Producción: `https://elinain.onrender.com` — documentación en [/docs](https://elinain.onrender.com/docs).
 
-1. **Requisitos:** Node 22+, pnpm 9+, Docker con imagen `postgis/postgis:16-3.5`. Instalar dependencias:
-   ```bash
+## Table of Contents
+
+- [About The Project](#about-the-project)
+  - [Built With](#built-with)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Usage](#usage)
+- [API Reference](#api-reference)
+- [Deployment](#deployment)
+
+## About The Project
+
+El cuaderno del comerciante ganadero no escala: los repartos de utilidades en participación se calculan a mano y se discuten después. Elinain centraliza la operación (terceros, fincas, contratos, compras, ventas, ciclos, costos) y automatiza el cálculo —promedio ponderado a la fecha de cada venta, utilidad real y reparto según el porcentaje de participación inmutable— con aislamiento de datos por comerciante a nivel de base de datos (RLS) y de aplicación (`TenantGuard`).
+
+### Built With
+
+- [NestJS 11](https://nestjs.com/) + TypeScript estricto
+- [PostgreSQL 16 + PostGIS](https://postgis.net/) (Neon en producción)
+- [Drizzle ORM](https://orm.drizzle.team/) (`drizzle-orm` + `drizzle-kit`)
+- Validación con `class-validator` + `class-transformer`
+- Docs con `@nestjs/swagger` + `@scalar/nestjs-api-reference`
+- Jest + ts-jest (toda prueba vive en `./test`)
+
+## Getting Started
+
+Para tener una copia local corriendo sigue estos pasos.
+
+### Prerequisites
+
+- Node 24.x y pnpm 11.x
+- Docker con imagen `postgis/postgis:16-3.5`
+
+### Installation
+
+1. Clona el repo:
+   ```sh
+   git clone git@github.com:MQuintana0/Elinain.git
+   cd Elinain
+   ```
+2. Instala dependencias:
+   ```sh
    pnpm install
    ```
-2. **Variables de entorno:** crear `.env` (no versionado) con, como mínimo:
-   ```bash
+3. Crea `.env` (no versionado; ver `.env.example`):
+   ```sh
    DATABASE_URL=postgres://elinain:elinain@localhost:5433/elinain
    PORT=3000
    ```
-3. **Base de datos:** levantar Postgres+PostGIS y aplicar la migración base (RLS incluido):
-   ```bash
+4. Levanta Postgres+PostGIS y sincroniza el esquema (gestiona `fincas`, `terceros` y `usuarios`; ignora las tablas internas de PostGIS):
+   ```sh
    docker compose up -d db
-   pnpm dlx drizzle-kit migrate
-   ```
-4. **Ejecutar:**
-   ```bash
-   pnpm run start:dev
-   ```
-5. **Verificación:** abrir Swagger en `http://localhost:3000/docs` y la referencia Scalar en `http://localhost:3000/referencia`. Otros scripts:
-   ```bash
-   pnpm run build
-   pnpm run test
-   pnpm run lint && pnpm run format
+   npx drizzle-kit push
    ```
 
-## Details
+## Usage
 
-| Tema | Decisión |
-|------|----------|
-| Stack | NestJS 11, PostgreSQL 16 + PostGIS, Drizzle ORM (`drizzle-orm` + `drizzle-kit`), `pg`, validación con `class-validator` + `class-transformer`, docs con `@nestjs/swagger` + `@scalar/nestjs-api-reference`, Jest + ts-jest para pruebas |
-| Arquitectura | Modular por dominio: `usuarios`, `terceros`, `fincas`, `contratos`, `compras`, `ventas`, `ciclos`, `costos`, `reportes`, más `common` (filtros, interceptores, guards) y `db` (schema + `drizzle.config.ts`). Flujo estricto controller → service → base de datos; cero lógica de negocio en controladores; patrón Repositorio aísla a Drizzle |
-| Aislamiento tenant | `TenantGuard` global inyecta `usuario_id` en cada petición y todo repositorio lo exige; PostgreSQL aplica RLS con `app.usuario_id` (`drizzle/0000_base_rls_postgis.sql`). `fincas` se aísla indirectamente vía `finca → tercero → usuario_id` (sin columna `usuario_id` propia por diseño) |
-| Motor financiero | `UtilidadService` es puro (sin DB ni HTTP, 100 % testeable): promedio ponderado recalculado a la fecha de cada venta, snapshot guardado en la venta, utilidad real, kilos ganados, porcentajes y reparto según `porcentaje_participacion` inmutable |
-| Reglas innegociables | `TenantGuard` cubre el 100 % de las rutas; `UtilidadService` sin acceso a datos; sin descuentos operativos (los costos son informativos y no alteran la utilidad real); reportes solo agregan datos existentes; validación estricta con DTOs (whitelist + `forbidNonWhitelisted`) y mensajes de error de la API en español |
-| Estructura | `src/main.ts` (bootstrap, pipes, filtros, interceptores, Swagger `/docs` + Scalar `/referencia`), `src/app.module.ts` (10 módulos), `src/db/` (schema + config de migraciones), `drizzle/` (SQL de migraciones), `test/` (toda prueba vive aquí: `integracion/` y `e2e/`, config `test/jest-integracion.json`) |
-| Documentación API | Swagger UI en `/docs`, referencia Scalar en `/referencia`, título `Elinain API` v0.1.0 |
-| Trabajo local no versionado | `docs/`, `odd/` y `.atl/` están en `.gitignore`: son apuntes y tableros de trabajo locales. La spec activa versionada vive en `specs/001-elinain-mvp/spec.md` |
+```sh
+# desarrollo (watch)
+pnpm run start:dev
 
-## Checklist
+# producción local (requiere build previo)
+pnpm run build
+pnpm run start:prod
+```
 
-- [ ] `pnpm install` completa sin errores
-- [ ] `docker compose up -d db` deja Postgres+PostGIS sano (`pg_isready`)
-- [ ] `pnpm dlx drizzle-kit migrate` aplica `drizzle/0000_base_rls_postgis.sql` (extensiones PostGIS + pgcrypto, tablas, RLS)
-- [ ] `pnpm run start:dev` escucha en el puerto de `PORT` y responde `/docs` y `/referencia`
-- [ ] `pnpm run test` pasa (unitarios de cálculo + integración/e2e en `./test`)
-- [ ] Toda ruta nueva/tocada queda bajo `TenantGuard`; todo endpoint valida con DTOs y responde errores en español
+| Script              | Qué hace                                                   |
+|---------------------|------------------------------------------------------------|
+| `pnpm run start:dev` | Levanta en watch mode con `PORT` (default 3000)           |
+| `pnpm run build`    | Compila a `dist/`                                          |
+| `pnpm run start:prod` | Corre `node dist/main.js` (lo que usa Render)            |
+| `pnpm run test`     | Suite Jest (`./test`: integración + e2e)                   |
+| `pnpm run lint`     | ESLint sobre `src/` y `test/`                              |
+| `pnpm run format`   | Prettier check sobre `src/` y `test/`                      |
 
-## Next step
+Verificación local: Swagger en `http://localhost:3000/docs`, Scalar en `http://localhost:3000/referencia`, health en `http://localhost:3000/api/v1/health`.
 
-Leer la constitución (`docs/constitution.md`, local) y la spec activa (`specs/001-elinain-mvp/spec.md`) antes de tocar código, y confirmar el plan en `AGENTS.md`.
+## API Reference
+
+Todos los endpoints están versionados bajo `/api/v1` (convención del proyecto). La referencia completa y ejecutable está en Swagger:
+
+- Local: `http://localhost:3000/docs`
+- Producción: `https://elinain.onrender.com/docs`
+
+Respuestas OK con forma `{ "exito": true, "datos": { ... } }`; errores con su código HTTP y `{ "exito": false, "mensaje": "..." }`, todo en español. La validación de DTOs es estricta (whitelist + `forbidNonWhitelisted`).
+
+## Deployment
+
+- **Backend:** Render como web service Node, vía Blueprint (`render.yaml`): build `pnpm install --frozen-lockfile && pnpm run build`, start `node dist/main.js`, health check en `/api/v1/health`, `NODE_ENV=production`.
+- **Base de datos:** Neon (Postgres). El runtime usa la URL pooled con `?sslmode=require` (se configura como `DATABASE_URL` en el dashboard de Render, nunca en el repo); las migraciones usan la URL directa.
+- Primer deploy tarda varios minutos; si el servicio estuvo inactivo, la primera petición puede tardar (cold start).
