@@ -69,10 +69,10 @@ describe('CRUD Terceros — Integración (MVP-009)', () => {
     tercerosCreados.push(terceroB.id);
 
     const listaA = await contexto.ejecutar(usuarioA, () => servicio.listar());
-    expect(listaA.some((t) => t.id === terceroB.id)).toBe(false);
+    expect(listaA.elementos.some((t) => t.id === terceroB.id)).toBe(false);
 
     const listaB = await contexto.ejecutar(usuarioB, () => servicio.listar());
-    expect(listaB.some((t) => t.id === terceroB.id)).toBe(true);
+    expect(listaB.elementos.some((t) => t.id === terceroB.id)).toBe(true);
   });
 
   it('actualiza datos de un tercero propio', async () => {
@@ -128,12 +128,15 @@ describe('CRUD Terceros — Integración (MVP-009)', () => {
     const pagina1 = await contexto.ejecutar(usuarioA, () =>
       servicio.listar({ limite: 1, offset: 0 }),
     );
-    expect(pagina1).toHaveLength(1);
+    expect(pagina1.elementos).toHaveLength(1);
+    expect(pagina1.total).toBeGreaterThanOrEqual(2);
+    expect(pagina1.limite).toBe(1);
+    expect(pagina1.offset).toBe(0);
 
     const pagina2 = await contexto.ejecutar(usuarioA, () =>
       servicio.listar({ limite: 1, offset: 1 }),
     );
-    expect(pagina2).toHaveLength(1);
-    expect(pagina2[0].id).not.toBe(pagina1[0].id);
+    expect(pagina2.elementos).toHaveLength(1);
+    expect(pagina2.elementos[0].id).not.toBe(pagina1.elementos[0].id);
   });
 });

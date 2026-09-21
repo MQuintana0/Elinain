@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, count, eq, sql } from 'drizzle-orm';
 import { AccesoDb } from '../db/acceso-db';
 import { fincas } from '../db/schema/fincas';
 import { terceros } from '../db/schema/terceros';
 import { obtenerUsuarioIdTenantActual } from '../common/seguridad/contexto-tenant';
 import type { FincaRespuestaDto } from './dto/finca-respuesta.dto';
 import type { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
+import type { PaginaResultado } from '../common/dto/pagina-respuesta.dto';
 
 export interface DatosCrearFinca {
   tercero_id: string;
@@ -71,13 +72,25 @@ export class FincasRepository {
     });
   }
 
-  async listar(paginacion?: PaginacionQueryDto): Promise<FincaRespuestaDto[]> {
+  async listar(paginacion?: PaginacionQueryDto): Promise<PaginaResultado<FincaRespuestaDto>> {
     return this.accesoDb.ejecutarConTenant(async (transaccion) => {
       const usuarioId = obtenerUsuarioIdTenantActual();
       if (!usuarioId) {
         throw new Error('Contexto tenant obligatorio');
       }
-      let consulta = transaccion
+
+      const limite = paginacion?.limite ?? 20;
+      const offset = paginacion?.offset ?? 0;
+
+      const [conteo] = await transaccion
+        .select({ total: count() })
+        .from(fincas)
+        .innerJoin(terceros, eq(fincas.tercero_id, terceros.id))
+        .where(eq(terceros.usuario_id, usuarioId));
+
+      const total = Number(conteo?.total ?? 0);
+
+      const filas = await transaccion
         .select({
           id: fincas.id,
           tercero_id: fincas.tercero_id,
@@ -90,16 +103,15 @@ export class FincasRepository {
         .innerJoin(terceros, eq(fincas.tercero_id, terceros.id))
         .where(eq(terceros.usuario_id, usuarioId))
         .orderBy(fincas.nombre)
-        .$dynamic();
+        .limit(limite)
+        .offset(offset);
 
-      if (paginacion?.limite !== undefined) {
-        consulta = consulta.limit(paginacion.limite);
-      }
-      if (paginacion?.offset !== undefined) {
-        consulta = consulta.offset(paginacion.offset);
-      }
-
-      return consulta;
+      return {
+        elementos: filas,
+        total,
+        limite,
+        offset,
+      };
     });
   }
 

@@ -25,7 +25,9 @@ import { ContratosService } from './contratos.service';
 import { CrearContratoDto } from './dto/crear-contrato.dto';
 import { ActualizarContratoDto } from './dto/actualizar-contrato.dto';
 import { ContratoRespuestaDto } from './dto/contrato-respuesta.dto';
+import { PaginaContratosDto } from './dto/pagina-contratos.dto';
 import { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
+import type { PaginaResultado } from '../common/dto/pagina-respuesta.dto';
 import {
   RespuestaErrorNoAutorizadoDto,
   RespuestaErrorNoEncontradoDto,
@@ -66,7 +68,7 @@ export class ContratosController {
   @ApiOperation({
     summary: 'Apertura un nuevo contrato de participación (lote)',
     description:
-      'Registra un nuevo contrato vinculando un tercero, una finca y el par inmutable de porcentajes de participación. El estado se inicializa automáticamente en "activo".',
+      'Registra un nuevo contrato vinculando un tercero, una finca y el par inmutable de porcentajes de participación. El estado se inicializa automáticamente en "activo". Invariante de negocio obligatoria: la suma de porcentaje_comerciante y porcentaje_tercero debe ser exactamente igual a 100%.',
   })
   @ApiCreatedResponse({
     description: 'Contrato aperturado exitosamente',
@@ -74,17 +76,15 @@ export class ContratosController {
   })
   @ApiBadRequestResponse({
     description:
-      'Error de validación: campos requeridos ausentes (tercero_id, finca_id, fecha_apertura, porcentaje_comerciante, porcentaje_tercero) o valores fuera de rango',
+      'Error de validación: campos requeridos ausentes, valores numéricos inválidos o suma de porcentajes distinta de 100',
     type: RespuestaErrorValidacionDto,
     example: {
       exito: false,
-      mensaje: 'Error de validación en la solicitud',
+      mensaje:
+        'Error de validación en la solicitud: La suma del porcentaje del comerciante y el porcentaje del tercero debe ser exactamente igual a 100',
       codigoEstado: 400,
       errores: [
-        {
-          campo: 'porcentaje_comerciante',
-          mensajes: ['El porcentaje no puede ser menor que cero'],
-        },
+        'La suma del porcentaje del comerciante y el porcentaje del tercero debe ser exactamente igual a 100',
       ],
       ruta: '/api/v1/contratos',
       marcaTiempo: '2026-09-21T16:00:00.000Z',
@@ -114,9 +114,11 @@ export class ContratosController {
   })
   @ApiOkResponse({
     description: 'Listado de contratos obtenido exitosamente',
-    type: [ContratoRespuestaDto],
+    type: PaginaContratosDto,
   })
-  async listar(@Query() paginacion?: PaginacionQueryDto): Promise<ContratoRespuestaDto[]> {
+  async listar(
+    @Query() paginacion?: PaginacionQueryDto,
+  ): Promise<PaginaResultado<ContratoRespuestaDto>> {
     return this.servicio.listar(paginacion);
   }
 

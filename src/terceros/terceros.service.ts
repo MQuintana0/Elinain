@@ -4,6 +4,7 @@ import type { CrearTerceroDto } from './dto/crear-tercero.dto';
 import type { ActualizarTerceroDto } from './dto/actualizar-tercero.dto';
 import type { TerceroRespuestaDto } from './dto/tercero-respuesta.dto';
 import type { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
+import type { PaginaResultado } from '../common/dto/pagina-respuesta.dto';
 
 @Injectable()
 export class TercerosService {
@@ -17,7 +18,7 @@ export class TercerosService {
     });
   }
 
-  async listar(paginacion?: PaginacionQueryDto): Promise<TerceroRespuestaDto[]> {
+  async listar(paginacion?: PaginacionQueryDto): Promise<PaginaResultado<TerceroRespuestaDto>> {
     return this.repositorio.listar(paginacion);
   }
 

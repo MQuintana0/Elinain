@@ -276,8 +276,10 @@ describe('Contratos E2E — Apertura y Aislamiento Multi-Tenant (MVP-013)', () =
       headers: { Authorization: `Bearer ${tokenB}` },
     });
     expect(resListarB.status).toBe(200);
-    const cuerpoListarB = (await resListarB.json()) as { datos: Array<{ id: string }> };
-    expect(cuerpoListarB.datos.map((c) => c.id)).not.toContain(contratoIdA);
+    const cuerpoListarB = (await resListarB.json()) as {
+      datos: { elementos: Array<{ id: string }> };
+    };
+    expect(cuerpoListarB.datos.elementos.map((c) => c.id)).not.toContain(contratoIdA);
 
     // 5. Comerciante B intenta crear contrato usando finca o tercero de A -> 404
     const resCruzado = await fetch(`${urlBase}/api/v1/contratos`, {

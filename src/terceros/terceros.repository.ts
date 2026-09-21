@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, count, eq, sql } from 'drizzle-orm';
 import { AccesoDb } from '../db/acceso-db';
 import { terceros } from '../db/schema/terceros';
 import { obtenerUsuarioIdTenantActual } from '../common/seguridad/contexto-tenant';
 import type { TerceroRespuestaDto } from './dto/tercero-respuesta.dto';
-
 import type { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
+import type { PaginaResultado } from '../common/dto/pagina-respuesta.dto';
 
 export interface DatosCrearTercero {
   nombre: string;
@@ -47,27 +47,37 @@ export class TercerosRepository {
     });
   }
 
-  async listar(paginacion?: PaginacionQueryDto): Promise<TerceroRespuestaDto[]> {
+  async listar(paginacion?: PaginacionQueryDto): Promise<PaginaResultado<TerceroRespuestaDto>> {
     return this.accesoDb.ejecutarConTenant(async (transaccion) => {
       const usuarioId = obtenerUsuarioIdTenantActual();
       if (!usuarioId) {
         throw new Error('Contexto tenant obligatorio');
       }
-      let consulta = transaccion
+
+      const limite = paginacion?.limite ?? 20;
+      const offset = paginacion?.offset ?? 0;
+
+      const [conteo] = await transaccion
+        .select({ total: count() })
+        .from(terceros)
+        .where(eq(terceros.usuario_id, usuarioId));
+
+      const total = Number(conteo?.total ?? 0);
+
+      const filas = await transaccion
         .select()
         .from(terceros)
         .where(eq(terceros.usuario_id, usuarioId))
         .orderBy(terceros.nombre)
-        .$dynamic();
+        .limit(limite)
+        .offset(offset);
 
-      if (paginacion?.limite !== undefined) {
-        consulta = consulta.limit(paginacion.limite);
-      }
-      if (paginacion?.offset !== undefined) {
-        consulta = consulta.offset(paginacion.offset);
-      }
-
-      return consulta;
+      return {
+        elementos: filas,
+        total,
+        limite,
+        offset,
+      };
     });
   }
 

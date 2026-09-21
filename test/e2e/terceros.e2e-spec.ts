@@ -177,7 +177,9 @@ describe('Terceros y Fincas E2E — Aislamiento Multi-Tenant (MVP-007, 008, 009,
       headers: { Authorization: `Bearer ${tokenB}` },
     });
     expect(listarTercerosB.status).toBe(200);
-    const listaB = ((await listarTercerosB.json()) as { datos: Array<{ id: string }> }).datos;
+    const listaB = (
+      (await listarTercerosB.json()) as { datos: { elementos: Array<{ id: string }> } }
+    ).datos.elementos;
     expect(listaB.some((t) => t.id === terceroA.id)).toBe(false);
 
     // 4. Comerciante B intenta acceder directamente al tercero de A por ID -> 404
@@ -202,7 +204,9 @@ describe('Terceros y Fincas E2E — Aislamiento Multi-Tenant (MVP-007, 008, 009,
       headers: { Authorization: `Bearer ${tokenB}` },
     });
     expect(listarFincasB.status).toBe(200);
-    const fincasB = ((await listarFincasB.json()) as { datos: Array<{ id: string }> }).datos;
+    const fincasB = (
+      (await listarFincasB.json()) as { datos: { elementos: Array<{ id: string }> } }
+    ).datos.elementos;
     expect(fincasB.some((f) => f.id === fincaA.id)).toBe(false);
 
     // 7. Comerciante B intenta ver finca de A por ID -> 404

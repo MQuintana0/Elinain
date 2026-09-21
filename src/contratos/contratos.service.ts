@@ -4,6 +4,7 @@ import type { CrearContratoDto } from './dto/crear-contrato.dto';
 import type { ActualizarContratoDto } from './dto/actualizar-contrato.dto';
 import type { ContratoRespuestaDto } from './dto/contrato-respuesta.dto';
 import type { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
+import type { PaginaResultado } from '../common/dto/pagina-respuesta.dto';
 
 @Injectable()
 export class ContratosService {
@@ -52,7 +53,7 @@ export class ContratosService {
     return contrato;
   }
 
-  async listar(paginacion?: PaginacionQueryDto): Promise<ContratoRespuestaDto[]> {
+  async listar(paginacion?: PaginacionQueryDto): Promise<PaginaResultado<ContratoRespuestaDto>> {
     return this.repositorio.listar(paginacion);
   }
 

@@ -28,7 +28,9 @@ import { FincasService } from './fincas.service';
 import { CrearFincaDto } from './dto/crear-finca.dto';
 import { ActualizarFincaDto } from './dto/actualizar-finca.dto';
 import { FincaRespuestaDto } from './dto/finca-respuesta.dto';
+import { PaginaFincasDto } from './dto/pagina-fincas.dto';
 import { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
+import type { PaginaResultado } from '../common/dto/pagina-respuesta.dto';
 import {
   RespuestaErrorConflictoDto,
   RespuestaErrorNoAutorizadoDto,
@@ -101,11 +103,10 @@ export class FincasController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary:
-      'Lista las fincas pertenecientes a los terceros del comerciante con paginación opcional',
+    summary: 'Lista las fincas pertenecientes a los terceros del comerciante con paginación',
   })
-  @ApiOkResponse({ description: 'Listado de fincas', type: [FincaRespuestaDto] })
-  listar(@Query() paginacion?: PaginacionQueryDto): Promise<FincaRespuestaDto[]> {
+  @ApiOkResponse({ description: 'Listado de fincas paginado', type: PaginaFincasDto })
+  listar(@Query() paginacion?: PaginacionQueryDto): Promise<PaginaResultado<FincaRespuestaDto>> {
     return this.servicio.listar(paginacion);
   }
 

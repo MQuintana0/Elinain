@@ -28,7 +28,9 @@ import { TercerosService } from './terceros.service';
 import { CrearTerceroDto } from './dto/crear-tercero.dto';
 import { ActualizarTerceroDto } from './dto/actualizar-tercero.dto';
 import { TerceroRespuestaDto } from './dto/tercero-respuesta.dto';
+import { PaginaTercerosDto } from './dto/pagina-terceros.dto';
 import { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
+import type { PaginaResultado } from '../common/dto/pagina-respuesta.dto';
 import {
   RespuestaErrorConflictoDto,
   RespuestaErrorNoAutorizadoDto,
@@ -92,10 +94,10 @@ export class TercerosController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Lista los terceros pertenecientes al comerciante autenticado con paginación opcional',
+    summary: 'Lista los terceros pertenecientes al comerciante autenticado con paginación',
   })
-  @ApiOkResponse({ description: 'Listado de terceros', type: [TerceroRespuestaDto] })
-  listar(@Query() paginacion?: PaginacionQueryDto): Promise<TerceroRespuestaDto[]> {
+  @ApiOkResponse({ description: 'Listado de terceros paginado', type: PaginaTercerosDto })
+  listar(@Query() paginacion?: PaginacionQueryDto): Promise<PaginaResultado<TerceroRespuestaDto>> {
     return this.servicio.listar(paginacion);
   }
 

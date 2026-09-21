@@ -127,10 +127,10 @@ describe('CRUD Fincas y PostGIS — Integración (MVP-010)', () => {
     fincasCreadas.push(fincaB.id);
 
     const listaA = await contexto.ejecutar(usuarioA, () => servicioFincas.listar());
-    expect(listaA.some((f) => f.id === fincaB.id)).toBe(false);
+    expect(listaA.elementos.some((f) => f.id === fincaB.id)).toBe(false);
 
     const listaB = await contexto.ejecutar(usuarioB, () => servicioFincas.listar());
-    expect(listaB.some((f) => f.id === fincaB.id)).toBe(true);
+    expect(listaB.elementos.some((f) => f.id === fincaB.id)).toBe(true);
   });
 
   it('actualiza coordenadas y regenera el punto PostGIS', async () => {

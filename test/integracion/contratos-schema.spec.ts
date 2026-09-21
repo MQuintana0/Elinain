@@ -164,7 +164,7 @@ describe('Esquema y persistencia de contratos en Drizzle (MVP-012)', () => {
     expect(encontradoA?.raza).toBe('Brahman');
 
     const listaA = await contexto.ejecutar(usuarioA, () => repoContratos.listar());
-    expect(listaA.map((c) => c.id)).toContain(contratoA.id);
+    expect(listaA.elementos.map((c) => c.id)).toContain(contratoA.id);
 
     // Usuario B NO puede ver el contrato de Usuario A
     const encontradoB = await contexto.ejecutar(usuarioB, () =>
@@ -173,6 +173,6 @@ describe('Esquema y persistencia de contratos en Drizzle (MVP-012)', () => {
     expect(encontradoB).toBeNull();
 
     const listaB = await contexto.ejecutar(usuarioB, () => repoContratos.listar());
-    expect(listaB.map((c) => c.id)).not.toContain(contratoA.id);
+    expect(listaB.elementos.map((c) => c.id)).not.toContain(contratoA.id);
   });
 });

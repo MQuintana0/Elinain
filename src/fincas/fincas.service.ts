@@ -9,6 +9,7 @@ import type { CrearFincaDto } from './dto/crear-finca.dto';
 import type { ActualizarFincaDto } from './dto/actualizar-finca.dto';
 import type { FincaRespuestaDto } from './dto/finca-respuesta.dto';
 import type { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
+import type { PaginaResultado } from '../common/dto/pagina-respuesta.dto';
 
 @Injectable()
 export class FincasService {
@@ -29,7 +30,7 @@ export class FincasService {
     });
   }
 
-  async listar(paginacion?: PaginacionQueryDto): Promise<FincaRespuestaDto[]> {
+  async listar(paginacion?: PaginacionQueryDto): Promise<PaginaResultado<FincaRespuestaDto>> {
     return this.repositorio.listar(paginacion);
   }
 
