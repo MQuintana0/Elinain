@@ -213,4 +213,20 @@ export class ContratosRepository {
       return filas[0] ?? null;
     });
   }
+
+  async actualizarInventarioYPromedio(
+    id: string,
+    cantidadActual: number,
+    pesoPromedioActual: number,
+  ): Promise<void> {
+    return this.accesoDb.ejecutarConTenant(async (transaccion) => {
+      await transaccion
+        .update(contratos)
+        .set({
+          cantidad_actual: cantidadActual,
+          peso_promedio_actual: pesoPromedioActual,
+        })
+        .where(eq(contratos.id, id));
+    });
+  }
 }

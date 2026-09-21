@@ -5,6 +5,7 @@ import { compras, type NuevaCompra } from '../db/schema/compras';
 import { contratos } from '../db/schema/contratos';
 import { terceros } from '../db/schema/terceros';
 import { obtenerUsuarioIdTenantActual } from '../common/seguridad/contexto-tenant';
+import { calcularFusionCompra } from './calculo-fusion';
 import type { CompraRespuestaDto } from './dto/compra-respuesta.dto';
 import type { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
 import type { PaginaResultado } from '../common/dto/pagina-respuesta.dto';
@@ -12,6 +13,8 @@ import type { PaginaResultado } from '../common/dto/pagina-respuesta.dto';
 export interface ValidacionContrato {
   existe: boolean;
   estado?: string;
+  cantidad_actual?: number | null;
+  peso_promedio_actual?: number | null;
 }
 
 @Injectable()
@@ -29,6 +32,8 @@ export class ComprasRepository {
         .select({
           id: contratos.id,
           estado: contratos.estado,
+          cantidad_actual: contratos.cantidad_actual,
+          peso_promedio_actual: contratos.peso_promedio_actual,
         })
         .from(contratos)
         .innerJoin(terceros, eq(contratos.tercero_id, terceros.id))
@@ -42,12 +47,43 @@ export class ComprasRepository {
       return {
         existe: true,
         estado: fila.estado,
+        cantidad_actual: fila.cantidad_actual,
+        peso_promedio_actual: fila.peso_promedio_actual,
       };
     });
   }
 
   async crear(datos: NuevaCompra): Promise<CompraRespuestaDto> {
     return this.accesoDb.ejecutarConTenant(async (transaccion) => {
+      const usuarioId = obtenerUsuarioIdTenantActual();
+      if (!usuarioId) {
+        throw new Error('Contexto tenant obligatorio');
+      }
+
+      // 1. Obtener datos del contrato y compras previas de forma atómica
+      const filasContrato = await transaccion
+        .select({
+          id: contratos.id,
+          cantidad_actual: contratos.cantidad_actual,
+          peso_promedio_actual: contratos.peso_promedio_actual,
+        })
+        .from(contratos)
+        .innerJoin(terceros, eq(contratos.tercero_id, terceros.id))
+        .where(and(eq(contratos.id, datos.contrato_id), eq(terceros.usuario_id, usuarioId)));
+
+      const contrato = filasContrato[0];
+      if (!contrato) {
+        throw new Error('Contrato no encontrado o no pertenece al tenant');
+      }
+
+      const comprasPrevias = await transaccion
+        .select({ peso_promedio: compras.peso_promedio })
+        .from(compras)
+        .where(eq(compras.contrato_id, datos.contrato_id));
+
+      const pesosPrevios = comprasPrevias.map((c) => c.peso_promedio);
+
+      // 2. Insertar la nueva compra
       const filas = await transaccion
         .insert(compras)
         .values({
@@ -65,6 +101,23 @@ export class ComprasRepository {
       if (!fila) {
         throw new Error('No se pudo crear el registro de compra');
       }
+
+      // 3. Recalcular e impactar cantidad_actual y peso_promedio_actual del contrato (RF-11)
+      const resultadoFusion = calcularFusionCompra({
+        cantidadContrato: contrato.cantidad_actual,
+        pesoPromedioContrato: contrato.peso_promedio_actual,
+        pesosComprasExistentes: pesosPrevios,
+        cantidadNuevaCompra: datos.cantidad,
+        pesoPromedioNuevaCompra: datos.peso_promedio,
+      });
+
+      await transaccion
+        .update(contratos)
+        .set({
+          cantidad_actual: resultadoFusion.nuevaCantidadActual,
+          peso_promedio_actual: resultadoFusion.nuevoPesoPromedioActual,
+        })
+        .where(eq(contratos.id, datos.contrato_id));
 
       return fila;
     });
