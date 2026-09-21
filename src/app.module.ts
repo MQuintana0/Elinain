@@ -8,6 +8,7 @@ import { VentasModule } from './ventas/ventas.module';
 import { CiclosModule } from './ciclos/ciclos.module';
 import { CostosModule } from './costos/costos.module';
 import { ReportesModule } from './reportes/reportes.module';
+import { HealthModule } from './health/health.module';
 import { CommonModule } from './common/common.module';
 
 @Module({
@@ -22,6 +23,7 @@ import { CommonModule } from './common/common.module';
     CiclosModule,
     CostosModule,
     ReportesModule,
+    HealthModule,
   ],
 })
 export class AppModule {}

@@ -31,8 +31,8 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new FiltroExcepcionesHttp());
   app.useGlobalInterceptors(new InterceptorRegistroPeticion(), new InterceptorFormatoRespuesta());
   configurarDocumentacion(app);
-  const puerto = process.env.PORT ?? 3000;
-  await app.listen(puerto);
+  const puerto = parseInt(process.env.PORT ?? '3000', 10);
+  await app.listen(puerto, '0.0.0.0');
   console.log(`Aplicación Elinain escuchando en el puerto ${puerto}`);
 }
 
