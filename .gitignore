@@ -22,3 +22,8 @@ coverage/
 # Postgres data (volúmenes locales)
 pgdata/
 data/
+
+# Docs y trabajo local (no versionar)
+.atl/
+docs/
+odd/
