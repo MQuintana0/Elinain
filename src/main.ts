@@ -30,6 +30,9 @@ async function bootstrap(): Promise<void> {
   );
   app.useGlobalFilters(new FiltroExcepcionesHttp());
   app.useGlobalInterceptors(new InterceptorRegistroPeticion(), new InterceptorFormatoRespuesta());
+  // Convención del proyecto: todos los endpoints versionados bajo api/v1.
+  // La documentación (/docs, /referencia) queda fuera del prefijo.
+  app.setGlobalPrefix('api/v1', { exclude: ['docs', 'referencia'] });
   configurarDocumentacion(app);
   const puerto = parseInt(process.env.PORT ?? '3000', 10);
   await app.listen(puerto, '0.0.0.0');
