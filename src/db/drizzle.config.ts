@@ -14,6 +14,6 @@ export default defineConfig({
   schema: './src/db/schema/*',
   out: './drizzle',
   dialect: 'postgresql',
-  tablesFilter: ['fincas', 'terceros', 'usuarios', 'contratos'],
+  tablesFilter: ['fincas', 'terceros', 'usuarios', 'contratos', 'compras'],
   dbCredentials: { url: urlConexion },
 });
