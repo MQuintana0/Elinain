@@ -3,9 +3,16 @@
 // (GET /docs 404, Scalar 404, esquema sin la regla de mínimo).
 import { Body, Controller, INestApplication, Post } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { ApiCreatedResponse, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOperation,
+  ApiProperty,
+  ApiTags,
+} from '@nestjs/swagger';
 import { IsInt, Min } from 'class-validator';
 import { configurarDocumentacion } from '../../src/main';
+import { RespuestaErrorDto } from '../../src/common/dto/respuesta-error.dto';
 
 // DTO temporal de prueba: existe solo para verificar que las reglas
 // de validación se reflejan en el esquema OpenAPI. No crea dominio (Fase 1+ intacta).
@@ -22,6 +29,7 @@ class ControladorEjemploDocs {
   @Post()
   @ApiOperation({ summary: 'Crea un ejemplo de documentación' })
   @ApiCreatedResponse({ description: 'Ejemplo creado', type: CrearEjemploDocsDto })
+  @ApiBadRequestResponse({ description: 'Error de validación', type: RespuestaErrorDto })
   crear(@Body() dto: CrearEjemploDocsDto): CrearEjemploDocsDto {
     return dto;
   }
@@ -88,5 +96,19 @@ describe('Documentación API Swagger + Scalar (MVP-004)', () => {
     expect(esquema).toBeDefined();
     expect(esquema?.required).toContain('cantidad');
     expect(esquema?.properties?.['cantidad']?.minimum).toBe(1);
+  });
+
+  it('refleja el esquema RespuestaErrorDto para respuestas de error estándar', async () => {
+    const url = await app.getUrl();
+    const respuesta = await fetch(`${url}/docs-json`);
+    expect(respuesta.status).toBe(200);
+    const documento = (await respuesta.json()) as DocumentoOpenApi;
+    const esquema = documento.components?.schemas?.['RespuestaErrorDto'];
+    expect(esquema).toBeDefined();
+    expect(esquema?.properties?.['exito']).toBeDefined();
+    expect(esquema?.properties?.['mensaje']).toBeDefined();
+    expect(esquema?.properties?.['codigoEstado']).toBeDefined();
+    expect(esquema?.properties?.['ruta']).toBeDefined();
+    expect(esquema?.properties?.['marcaTiempo']).toBeDefined();
   });
 });

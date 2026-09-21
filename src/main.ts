@@ -15,6 +15,7 @@ export function configurarDocumentacion(app: INestApplication): OpenAPIObject {
     .setTitle('Elinain API')
     .setDescription('API del MVP de gestión ganadera multi-tenant Elinain')
     .setVersion('0.1.0')
+    .addBearerAuth()
     .build();
   const documento = SwaggerModule.createDocument(app, configuracion);
   SwaggerModule.setup('docs', app, documento);

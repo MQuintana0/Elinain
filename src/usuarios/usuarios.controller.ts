@@ -6,13 +6,23 @@
 // Se usa el nombre explícito `registro` (acción de autenticación, no CRUD
 // puro) tal como lo espera odd/tasks/elinain-mvp.md.
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiInternalServerErrorResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { AccesoService } from './acceso.service';
 import { AccesoRespuestaDto } from './dto/acceso-respuesta.dto';
 import { CredencialesAccesoDto } from './dto/acceso-usuario.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { UsuarioRegistradoDto } from './dto/usuario-registrado.dto';
 import { UsuariosService } from './usuarios.service';
+import { RespuestaErrorDto } from '../common/dto/respuesta-error.dto';
 import { RutaPublica } from '../common/seguridad/ruta-publica.decorator';
 
 @ApiTags('usuarios')
@@ -28,6 +38,18 @@ export class UsuariosController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registra el perfil del comerciante' })
   @ApiCreatedResponse({ description: 'Comerciante registrado', type: UsuarioRegistradoDto })
+  @ApiBadRequestResponse({
+    description: 'Datos de registro inválidos o incompletos',
+    type: RespuestaErrorDto,
+  })
+  @ApiConflictResponse({
+    description: 'El correo electrónico ya se encuentra registrado',
+    type: RespuestaErrorDto,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Error interno del servidor',
+    type: RespuestaErrorDto,
+  })
   registrar(@Body() dto: CrearUsuarioDto): Promise<UsuarioRegistradoDto> {
     return this.servicio.registrar(dto);
   }
@@ -37,6 +59,18 @@ export class UsuariosController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Inicia sesión y emite el JWT de acceso' })
   @ApiOkResponse({ description: 'Acceso concedido', type: AccesoRespuestaDto })
+  @ApiBadRequestResponse({
+    description: 'Credenciales con formato inválido',
+    type: RespuestaErrorDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Credenciales de acceso inválidas',
+    type: RespuestaErrorDto,
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Error interno del servidor',
+    type: RespuestaErrorDto,
+  })
   acceder(@Body() dto: CredencialesAccesoDto): Promise<AccesoRespuestaDto> {
     return this.acceso.iniciarSesion(dto);
   }
