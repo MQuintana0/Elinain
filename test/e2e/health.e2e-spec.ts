@@ -1,4 +1,4 @@
-// Health check público y versionado para Render.
+// Health check público y versionado para Railway.
 // Convención del proyecto: endpoints bajo api/v1 → GET /api/v1/health.
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';

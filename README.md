@@ -6,19 +6,17 @@ Backend en NestJS para la gestión ganadera multi-tenant de comerciantes que com
 
 > ### 🌐 API en Producción
 >
-> La API se encuentra desplegada y disponible públicamente en Render:
+> La API se encuentra desplegada y disponible públicamente en Railway:
 >
-> - **Base URL:** `https://elinain.onrender.com/api/v1`
-> - **Health Check:** [https://elinain.onrender.com/api/v1/health](https://elinain.onrender.com/api/v1/health)
+> - **Base URL:** `https://elinain-production.up.railway.app/api/v1`
+> - **Health Check:** [https://elinain-production.up.railway.app/api/v1/health](https://elinain-production.up.railway.app/api/v1/health)
 >
 > #### 📖 Exploración de Contratos y Documentación Interactiva
 >
 > Todos los endpoints disponibles en el proyecto están 100% documentados con sus contratos, DTOs y ejemplos. Puedes utilizar cualquiera de las dos herramientas disponibles según tu preferencia para revisar los contratos y probar peticiones en vivo:
 >
-> - **Scalar (Recomendada / Vista moderna):** [https://elinain.onrender.com/referencia](https://elinain.onrender.com/referencia)
-> - **Swagger UI (Vista interactiva clásica):** [https://elinain.onrender.com/docs](https://elinain.onrender.com/docs)
->
-> _(Nota: Si el servicio se encuentra inactivo, la primera petición puede tardar unos segundos mientras la instancia inicia)._
+> - **Scalar (Recomendada / Vista moderna):** [https://elinain-production.up.railway.app/referencia](https://elinain-production.up.railway.app/referencia)
+> - **Swagger UI (Vista interactiva clásica):** [https://elinain-production.up.railway.app/docs](https://elinain-production.up.railway.app/docs)
 
 ---
 
@@ -135,10 +133,10 @@ flowchart TD
 
 Todos los endpoints disponibles en el sistema (salud, registro, inicio de sesión, terceros y fincas geolocalizadas) están completamente documentados con sus contratos, DTOs de entrada y esquemas de respuesta. Puedes usar la interfaz que prefieras para revisarlos:
 
-| Interfaz       | Entorno Local                      | Producción                                                                           | Descripción                                                                         |
-| -------------- | ---------------------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| **Scalar**     | `http://localhost:3000/referencia` | [`https://elinain.onrender.com/referencia`](https://elinain.onrender.com/referencia) | Interfaz moderna, clara y optimizada para consultar contratos y esquemas.           |
-| **Swagger UI** | `http://localhost:3000/docs`       | [`https://elinain.onrender.com/docs`](https://elinain.onrender.com/docs)             | Interfaz clásica interactiva para probar peticiones directamente contra el backend. |
+| Interfaz       | Entorno Local                      | Producción                                                                                             | Descripción                                                                         |
+| -------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| **Scalar**     | `http://localhost:3000/referencia` | [`https://elinain-production.up.railway.app/referencia`](https://elinain-production.up.railway.app/referencia) | Interfaz moderna, clara y optimizada para consultar contratos y esquemas.           |
+| **Swagger UI** | `http://localhost:3000/docs`       | [`https://elinain-production.up.railway.app/docs`](https://elinain-production.up.railway.app/docs)             | Interfaz clásica interactiva para probar peticiones directamente contra el backend. |
 
 ### Convención de Respuestas
 

@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { RutaPublica } from '../common/seguridad/ruta-publica.decorator';
 
-// Controlador público de salud: Render lo usa como health check.
+// Controlador público de salud: Railway lo usa como health check.
 // No expone dominio ni requiere autenticación.
 @Controller('health')
 export class HealthController {
