@@ -5,6 +5,7 @@ pnpm-store/
 # Build
 dist/
 build/
+.codegraph/
 
 # Env
 .env
