@@ -27,17 +27,23 @@ import { TercerosService } from './terceros.service';
 import { CrearTerceroDto } from './dto/crear-tercero.dto';
 import { ActualizarTerceroDto } from './dto/actualizar-tercero.dto';
 import { TerceroRespuestaDto } from './dto/tercero-respuesta.dto';
-import { RespuestaErrorDto } from '../common/dto/respuesta-error.dto';
+import {
+  RespuestaErrorConflictoDto,
+  RespuestaErrorNoAutorizadoDto,
+  RespuestaErrorNoEncontradoDto,
+  RespuestaErrorServidorDto,
+  RespuestaErrorValidacionDto,
+} from '../common/dto/respuesta-error.dto';
 
 @ApiTags('terceros')
 @ApiBearerAuth()
 @ApiUnauthorizedResponse({
   description: 'No autorizado: token JWT ausente o inválido',
-  type: RespuestaErrorDto,
+  type: RespuestaErrorNoAutorizadoDto,
 })
 @ApiInternalServerErrorResponse({
   description: 'Error interno del servidor',
-  type: RespuestaErrorDto,
+  type: RespuestaErrorServidorDto,
 })
 @Controller('terceros')
 export class TercerosController {
@@ -49,7 +55,7 @@ export class TercerosController {
   @ApiCreatedResponse({ description: 'Tercero creado exitosamente', type: TerceroRespuestaDto })
   @ApiBadRequestResponse({
     description: 'Datos de creación del tercero inválidos o incompletos',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorValidacionDto,
   })
   crear(@Body() dto: CrearTerceroDto): Promise<TerceroRespuestaDto> {
     return this.servicio.crear(dto);
@@ -69,11 +75,11 @@ export class TercerosController {
   @ApiOkResponse({ description: 'Tercero encontrado', type: TerceroRespuestaDto })
   @ApiBadRequestResponse({
     description: 'Identificador no es un UUID válido',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorValidacionDto,
   })
   @ApiNotFoundResponse({
     description: 'Tercero no encontrado o no pertenece al comerciante',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorNoEncontradoDto,
   })
   buscarPorId(@Param('id', ParseUUIDPipe) id: string): Promise<TerceroRespuestaDto> {
     return this.servicio.buscarPorId(id);
@@ -85,11 +91,11 @@ export class TercerosController {
   @ApiOkResponse({ description: 'Tercero actualizado', type: TerceroRespuestaDto })
   @ApiBadRequestResponse({
     description: 'Datos de actualización inválidos o identificador no es UUID válido',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorValidacionDto,
   })
   @ApiNotFoundResponse({
     description: 'Tercero no encontrado o no pertenece al comerciante',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorNoEncontradoDto,
   })
   actualizar(
     @Param('id', ParseUUIDPipe) id: string,
@@ -104,15 +110,15 @@ export class TercerosController {
   @ApiNoContentResponse({ description: 'Tercero eliminado correctamente' })
   @ApiBadRequestResponse({
     description: 'Identificador no es un UUID válido',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorValidacionDto,
   })
   @ApiNotFoundResponse({
     description: 'Tercero no encontrado o no pertenece al comerciante',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorNoEncontradoDto,
   })
   @ApiConflictResponse({
     description: 'No se puede eliminar el tercero porque tiene contratos activos asociados',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorConflictoDto,
   })
   eliminar(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.servicio.eliminar(id);

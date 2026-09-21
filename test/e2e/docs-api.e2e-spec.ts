@@ -6,13 +6,17 @@ import { Test } from '@nestjs/testing';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOperation,
   ApiProperty,
   ApiTags,
 } from '@nestjs/swagger';
 import { IsInt, Min } from 'class-validator';
 import { configurarDocumentacion } from '../../src/main';
-import { RespuestaErrorDto } from '../../src/common/dto/respuesta-error.dto';
+import {
+  RespuestaErrorNoEncontradoDto,
+  RespuestaErrorValidacionDto,
+} from '../../src/common/dto/respuesta-error.dto';
 
 // DTO temporal de prueba: existe solo para verificar que las reglas
 // de validación se reflejan en el esquema OpenAPI. No crea dominio (Fase 1+ intacta).
@@ -29,7 +33,14 @@ class ControladorEjemploDocs {
   @Post()
   @ApiOperation({ summary: 'Crea un ejemplo de documentación' })
   @ApiCreatedResponse({ description: 'Ejemplo creado', type: CrearEjemploDocsDto })
-  @ApiBadRequestResponse({ description: 'Error de validación', type: RespuestaErrorDto })
+  @ApiBadRequestResponse({
+    description: 'Error de validación',
+    type: RespuestaErrorValidacionDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Recurso no encontrado',
+    type: RespuestaErrorNoEncontradoDto,
+  })
   crear(@Body() dto: CrearEjemploDocsDto): CrearEjemploDocsDto {
     return dto;
   }
@@ -98,17 +109,19 @@ describe('Documentación API Swagger + Scalar (MVP-004)', () => {
     expect(esquema?.properties?.['cantidad']?.minimum).toBe(1);
   });
 
-  it('refleja el esquema RespuestaErrorDto para respuestas de error estándar', async () => {
+  it('refleja esquemas de error tipados específicos (400 y 404) en OpenAPI', async () => {
     const url = await app.getUrl();
     const respuesta = await fetch(`${url}/docs-json`);
     expect(respuesta.status).toBe(200);
     const documento = (await respuesta.json()) as DocumentoOpenApi;
-    const esquema = documento.components?.schemas?.['RespuestaErrorDto'];
-    expect(esquema).toBeDefined();
-    expect(esquema?.properties?.['exito']).toBeDefined();
-    expect(esquema?.properties?.['mensaje']).toBeDefined();
-    expect(esquema?.properties?.['codigoEstado']).toBeDefined();
-    expect(esquema?.properties?.['ruta']).toBeDefined();
-    expect(esquema?.properties?.['marcaTiempo']).toBeDefined();
+    const esquema400 = documento.components?.schemas?.['RespuestaErrorValidacionDto'];
+    expect(esquema400).toBeDefined();
+    expect(esquema400?.properties?.['codigoEstado']).toBeDefined();
+    expect(esquema400?.properties?.['errores']).toBeDefined();
+
+    const esquema404 = documento.components?.schemas?.['RespuestaErrorNoEncontradoDto'];
+    expect(esquema404).toBeDefined();
+    expect(esquema404?.properties?.['codigoEstado']).toBeDefined();
+    expect(esquema404?.properties?.['mensaje']).toBeDefined();
   });
 });

@@ -27,17 +27,23 @@ import { FincasService } from './fincas.service';
 import { CrearFincaDto } from './dto/crear-finca.dto';
 import { ActualizarFincaDto } from './dto/actualizar-finca.dto';
 import { FincaRespuestaDto } from './dto/finca-respuesta.dto';
-import { RespuestaErrorDto } from '../common/dto/respuesta-error.dto';
+import {
+  RespuestaErrorConflictoDto,
+  RespuestaErrorNoAutorizadoDto,
+  RespuestaErrorNoEncontradoDto,
+  RespuestaErrorServidorDto,
+  RespuestaErrorValidacionDto,
+} from '../common/dto/respuesta-error.dto';
 
 @ApiTags('fincas')
 @ApiBearerAuth()
 @ApiUnauthorizedResponse({
   description: 'No autorizado: token JWT ausente o inválido',
-  type: RespuestaErrorDto,
+  type: RespuestaErrorNoAutorizadoDto,
 })
 @ApiInternalServerErrorResponse({
   description: 'Error interno del servidor',
-  type: RespuestaErrorDto,
+  type: RespuestaErrorServidorDto,
 })
 @Controller('fincas')
 export class FincasController {
@@ -49,11 +55,11 @@ export class FincasController {
   @ApiCreatedResponse({ description: 'Finca registrada exitosamente', type: FincaRespuestaDto })
   @ApiBadRequestResponse({
     description: 'Datos de la finca inválidos (e.g. coordenadas fuera de rango)',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorValidacionDto,
   })
   @ApiNotFoundResponse({
     description: 'El tercero asociado no existe o no pertenece al comerciante',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorNoEncontradoDto,
   })
   crear(@Body() dto: CrearFincaDto): Promise<FincaRespuestaDto> {
     return this.servicio.crear(dto);
@@ -73,11 +79,11 @@ export class FincasController {
   @ApiOkResponse({ description: 'Finca encontrada', type: FincaRespuestaDto })
   @ApiBadRequestResponse({
     description: 'Identificador no es un UUID válido',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorValidacionDto,
   })
   @ApiNotFoundResponse({
     description: 'Finca no encontrada o no pertenece a un tercero del comerciante',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorNoEncontradoDto,
   })
   buscarPorId(@Param('id', ParseUUIDPipe) id: string): Promise<FincaRespuestaDto> {
     return this.servicio.buscarPorId(id);
@@ -89,11 +95,11 @@ export class FincasController {
   @ApiOkResponse({ description: 'Finca actualizada', type: FincaRespuestaDto })
   @ApiBadRequestResponse({
     description: 'Datos de actualización inválidos o identificador no es UUID válido',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorValidacionDto,
   })
   @ApiNotFoundResponse({
     description: 'Finca no encontrada o no pertenece a un tercero del comerciante',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorNoEncontradoDto,
   })
   actualizar(
     @Param('id', ParseUUIDPipe) id: string,
@@ -108,15 +114,15 @@ export class FincasController {
   @ApiNoContentResponse({ description: 'Finca eliminada correctamente' })
   @ApiBadRequestResponse({
     description: 'Identificador no es un UUID válido',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorValidacionDto,
   })
   @ApiNotFoundResponse({
     description: 'Finca no encontrada o no pertenece a un tercero del comerciante',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorNoEncontradoDto,
   })
   @ApiConflictResponse({
     description: 'No se puede eliminar la finca porque tiene contratos activos asociados',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorConflictoDto,
   })
   eliminar(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.servicio.eliminar(id);

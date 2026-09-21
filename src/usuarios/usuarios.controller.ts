@@ -22,7 +22,12 @@ import { CredencialesAccesoDto } from './dto/acceso-usuario.dto';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto';
 import { UsuarioRegistradoDto } from './dto/usuario-registrado.dto';
 import { UsuariosService } from './usuarios.service';
-import { RespuestaErrorDto } from '../common/dto/respuesta-error.dto';
+import {
+  RespuestaErrorConflictoDto,
+  RespuestaErrorNoAutorizadoDto,
+  RespuestaErrorServidorDto,
+  RespuestaErrorValidacionDto,
+} from '../common/dto/respuesta-error.dto';
 import { RutaPublica } from '../common/seguridad/ruta-publica.decorator';
 
 @ApiTags('usuarios')
@@ -40,15 +45,15 @@ export class UsuariosController {
   @ApiCreatedResponse({ description: 'Comerciante registrado', type: UsuarioRegistradoDto })
   @ApiBadRequestResponse({
     description: 'Datos de registro inválidos o incompletos',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorValidacionDto,
   })
   @ApiConflictResponse({
     description: 'El correo electrónico ya se encuentra registrado',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorConflictoDto,
   })
   @ApiInternalServerErrorResponse({
     description: 'Error interno del servidor',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorServidorDto,
   })
   registrar(@Body() dto: CrearUsuarioDto): Promise<UsuarioRegistradoDto> {
     return this.servicio.registrar(dto);
@@ -61,15 +66,15 @@ export class UsuariosController {
   @ApiOkResponse({ description: 'Acceso concedido', type: AccesoRespuestaDto })
   @ApiBadRequestResponse({
     description: 'Credenciales con formato inválido',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorValidacionDto,
   })
   @ApiUnauthorizedResponse({
     description: 'Credenciales de acceso inválidas',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorNoAutorizadoDto,
   })
   @ApiInternalServerErrorResponse({
     description: 'Error interno del servidor',
-    type: RespuestaErrorDto,
+    type: RespuestaErrorServidorDto,
   })
   acceder(@Body() dto: CredencialesAccesoDto): Promise<AccesoRespuestaDto> {
     return this.acceso.iniciarSesion(dto);
