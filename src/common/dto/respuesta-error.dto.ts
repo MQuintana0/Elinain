@@ -9,13 +9,13 @@ export class RespuestaErrorDto {
 
   @ApiProperty({
     description: 'Mensaje descriptivo del error en español',
-    example: 'Error de validación en la petición: El nombre es obligatorio',
+    example: 'Error de validación en la petición: El campo es obligatorio',
   })
   mensaje!: string;
 
   @ApiPropertyOptional({
     description: 'Lista detallada de restricciones o errores de validación',
-    example: ['El nombre es obligatorio'],
+    example: ['El campo es obligatorio'],
     type: [String],
   })
   errores?: string[];
@@ -28,7 +28,7 @@ export class RespuestaErrorDto {
 
   @ApiProperty({
     description: 'Ruta URL donde ocurrió el error',
-    example: '/api/v1/terceros',
+    example: '/api/v1/recurso',
   })
   ruta!: string;
 
