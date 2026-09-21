@@ -6,7 +6,8 @@ import * as path from 'path';
 import { esquemaFincas } from '../../src/db/schema/fincas';
 import { crearConexionDb } from '../../src/db/conexion';
 
-const urlConexion = process.env.DATABASE_URL ?? 'postgres://elinain:elinain@localhost:5433/elinain';
+const urlConexion =
+  process.env.DATABASE_ADMIN_URL ?? 'postgres://elinain_admin:elinain_admin@localhost:5433/elinain';
 
 describe('Base de datos PostGIS (MVP-002)', () => {
   it('responde SELECT PostGIS_version() con extension activa', async () => {

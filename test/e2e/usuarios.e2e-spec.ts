@@ -14,7 +14,8 @@ import { InterceptorRegistroPeticion } from '../../src/common/interceptors/inter
 import { crearConexionDb } from '../../src/db/conexion';
 import { usuarios } from '../../src/db/schema/usuarios';
 
-const urlConexion = process.env.DATABASE_URL ?? 'postgres://elinain:elinain@localhost:5433/elinain';
+const urlConexion =
+  process.env.DATABASE_ADMIN_URL ?? 'postgres://elinain_admin:elinain_admin@localhost:5433/elinain';
 const prefijoEmail = `mvp005-e2e-${Date.now()}-`;
 let contador = 0;
 

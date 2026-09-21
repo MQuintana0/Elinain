@@ -47,11 +47,20 @@ ALTER TABLE fincas FORCE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS aislamiento_usuarios ON usuarios;
 CREATE POLICY aislamiento_usuarios ON usuarios
-  USING (id::text = current_setting('app.usuario_id', true));
+  USING (
+    id::text = current_setting('app.usuario_id', true)
+    OR email = current_setting('app.auth_email', true)
+  )
+  WITH CHECK (
+    id::text = current_setting('app.usuario_id', true)
+    OR email = current_setting('app.auth_email', true)
+  );
 
 DROP POLICY IF EXISTS aislamiento_terceros ON terceros;
 CREATE POLICY aislamiento_terceros ON terceros
   USING (usuario_id::text = current_setting('app.usuario_id', true));
+ALTER POLICY aislamiento_terceros ON terceros
+  WITH CHECK (usuario_id::text = current_setting('app.usuario_id', true));
 
 -- Indirect tenant isolation for FINCA via join finca->tercero->usuario_id.
 DROP POLICY IF EXISTS aislamiento_fincas ON fincas;
@@ -62,4 +71,15 @@ CREATE POLICY aislamiento_fincas ON fincas
       WHERE terceros.id = fincas.tercero_id
         AND terceros.usuario_id::text = current_setting('app.usuario_id', true)
     )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM terceros
+      WHERE terceros.id = fincas.tercero_id
+        AND terceros.usuario_id::text = current_setting('app.usuario_id', true)
+    )
   );
+
+-- The application never runs as the migration/admin role.
+GRANT USAGE ON SCHEMA public TO elinain_runtime;
+GRANT SELECT, INSERT, UPDATE, DELETE ON usuarios, terceros, fincas TO elinain_runtime;

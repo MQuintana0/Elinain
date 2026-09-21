@@ -13,7 +13,8 @@ import { InterceptorFormatoRespuesta } from '../../src/common/interceptors/inter
 import { InterceptorRegistroPeticion } from '../../src/common/interceptors/interceptor-registro-peticion';
 import { UsuariosModule } from '../../src/usuarios/usuarios.module';
 
-const urlConexion = process.env.DATABASE_URL ?? 'postgres://elinain:elinain@localhost:5433/elinain';
+const urlConexion =
+  process.env.DATABASE_ADMIN_URL ?? 'postgres://elinain_admin:elinain_admin@localhost:5433/elinain';
 // Prefijo único por ejecución para no colisionar entre corridas ni borrar datos ajenos.
 const prefijoEmail = `mvp005-${Date.now()}-`;
 let contador = 0;

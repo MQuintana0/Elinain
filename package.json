@@ -12,6 +12,7 @@
     "start": "nest start",
     "start:prod": "node dist/main.js",
     "build": "nest build",
+    "migration:run": "drizzle-kit migrate --config ./drizzle.config.ts",
     "test": "jest --config ./test/jest-integracion.json",
     "lint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "format": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\""

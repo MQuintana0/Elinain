@@ -50,13 +50,14 @@ Para tener una copia local corriendo sigue estos pasos.
    ```
 3. Crea `.env` (no versionado; ver `.env.example`):
    ```sh
-   DATABASE_URL=postgres://elinain:elinain@localhost:5433/elinain
+   DATABASE_URL=postgres://elinain_runtime:elinain_runtime@localhost:5433/elinain
+   DATABASE_MIGRATION_URL=postgres://elinain_admin:elinain_admin@localhost:5433/elinain
    PORT=3000
    ```
-4. Levanta Postgres+PostGIS y sincroniza el esquema (gestiona `fincas`, `terceros` y `usuarios`; ignora las tablas internas de PostGIS):
+4. Levanta Postgres+PostGIS y ejecuta las migraciones con el rol admin separado del runtime:
    ```sh
    docker compose up -d db
-   npx drizzle-kit push
+   pnpm migration:run
    ```
 
 ## Usage
@@ -70,14 +71,14 @@ pnpm run build
 pnpm run start:prod
 ```
 
-| Script              | Qué hace                                                   |
-|---------------------|------------------------------------------------------------|
-| `pnpm run start:dev` | Levanta en watch mode con `PORT` (default 3000)           |
-| `pnpm run build`    | Compila a `dist/`                                          |
-| `pnpm run start:prod` | Corre `node dist/main.js` (lo que usa Render)            |
-| `pnpm run test`     | Suite Jest (`./test`: integración + e2e)                   |
-| `pnpm run lint`     | ESLint sobre `src/` y `test/`                              |
-| `pnpm run format`   | Prettier check sobre `src/` y `test/`                      |
+| Script                | Qué hace                                        |
+| --------------------- | ----------------------------------------------- |
+| `pnpm run start:dev`  | Levanta en watch mode con `PORT` (default 3000) |
+| `pnpm run build`      | Compila a `dist/`                               |
+| `pnpm run start:prod` | Corre `node dist/main.js` (lo que usa Render)   |
+| `pnpm run test`       | Suite Jest (`./test`: integración + e2e)        |
+| `pnpm run lint`       | ESLint sobre `src/` y `test/`                   |
+| `pnpm run format`     | Prettier check sobre `src/` y `test/`           |
 
 Verificación local: Swagger en `http://localhost:3000/docs`, Scalar en `http://localhost:3000/referencia`, health en `http://localhost:3000/api/v1/health`.
 
