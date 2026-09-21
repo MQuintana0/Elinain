@@ -15,6 +15,13 @@
       "when": 1789997001000,
       "tag": "0001_mvp007_rls_contexto",
       "breakpoints": false
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789997002000,
+      "tag": "0002_contratos",
+      "breakpoints": false
     }
   ]
 }

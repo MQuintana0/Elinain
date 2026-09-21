@@ -10,8 +10,8 @@ describe('Bootstrap de migraciones RLS (MVP-007)', () => {
     ) as { entries: Array<{ idx: number; tag: string; breakpoints: boolean }> };
     const tags = journal.entries.map((entrada) => entrada.tag);
 
-    expect(tags).toEqual(['0000_base_rls_postgis', '0001_mvp007_rls_contexto']);
-    expect(journal.entries.map((entrada) => entrada.idx)).toEqual([0, 1]);
+    expect(tags).toEqual(['0000_base_rls_postgis', '0001_mvp007_rls_contexto', '0002_contratos']);
+    expect(journal.entries.map((entrada) => entrada.idx)).toEqual([0, 1, 2]);
     expect(journal.entries.every((entrada) => entrada.breakpoints === false)).toBe(true);
     for (const tag of tags) {
       expect(fs.existsSync(path.join(raiz, 'drizzle', `${tag}.sql`))).toBe(true);

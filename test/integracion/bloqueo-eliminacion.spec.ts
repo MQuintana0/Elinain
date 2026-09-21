@@ -24,7 +24,6 @@ describe('Bloqueo de eliminación por contratos vinculados (MVP-011)', () => {
   const usuario = randomUUID();
   let terceroId: string;
   let fincaId: string;
-  let tablaContratosCreadaTemporalmente = false;
 
   beforeAll(async () => {
     await admin.db.execute(
@@ -55,9 +54,7 @@ describe('Bloqueo de eliminación por contratos vinculados (MVP-011)', () => {
 
   afterAll(async () => {
     try {
-      if (tablaContratosCreadaTemporalmente) {
-        await admin.db.execute(sql`DROP TABLE IF EXISTS contratos CASCADE`);
-      }
+      // Limpieza de contratos de prueba gestionada dentro del test específico
       await admin.db.execute(sql`DELETE FROM fincas WHERE id = ${fincaId}`);
       await admin.db.execute(sql`DELETE FROM terceros WHERE id = ${terceroId}`);
       await admin.db.execute(sql`DELETE FROM usuarios WHERE id = ${usuario}`);
@@ -98,21 +95,13 @@ describe('Bloqueo de eliminación por contratos vinculados (MVP-011)', () => {
   });
 
   it('bloquea con ConflictException (409) la eliminación de tercero o finca con contratos vinculados', async () => {
-    // Simular existencia de tabla contratos para validar la guarda referencial previa
-    await admin.db.execute(sql`
-      CREATE TABLE IF NOT EXISTS contratos (
-        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-        tercero_id uuid REFERENCES terceros(id),
-        finca_id uuid REFERENCES fincas(id)
-      );
-      GRANT SELECT, INSERT, UPDATE, DELETE ON contratos TO elinain_runtime;
-    `);
-    tablaContratosCreadaTemporalmente = true;
+    // Insertar contrato vinculado existente para validar la guarda referencial
 
     // Insertar contrato vinculado
     const contratoId = randomUUID();
     await admin.db.execute(sql`
-      INSERT INTO contratos (id, tercero_id, finca_id) VALUES (${contratoId}, ${terceroId}, ${fincaId})
+      INSERT INTO contratos (id, tercero_id, finca_id, fecha_apertura, porcentaje_comerciante, porcentaje_tercero)
+      VALUES (${contratoId}, ${terceroId}, ${fincaId}, NOW(), 50, 50)
     `);
 
     // Intentar eliminar finca con contrato
