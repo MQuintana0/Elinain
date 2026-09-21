@@ -3,6 +3,7 @@ import { ContratosRepository } from './contratos.repository';
 import type { CrearContratoDto } from './dto/crear-contrato.dto';
 import type { ActualizarContratoDto } from './dto/actualizar-contrato.dto';
 import type { ContratoRespuestaDto } from './dto/contrato-respuesta.dto';
+import type { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
 
 @Injectable()
 export class ContratosService {
@@ -19,6 +20,12 @@ export class ContratosService {
     if (!fincaPerteneceAlTercero) {
       throw new NotFoundException(
         'La finca especificada no existe o no pertenece al tercero indicado',
+      );
+    }
+
+    if (Math.abs(dto.porcentaje_comerciante + dto.porcentaje_tercero - 100) > 0.0001) {
+      throw new BadRequestException(
+        'La suma del porcentaje del comerciante y el porcentaje del tercero debe ser exactamente igual a 100',
       );
     }
 
@@ -45,8 +52,8 @@ export class ContratosService {
     return contrato;
   }
 
-  async listar(): Promise<ContratoRespuestaDto[]> {
-    return this.repositorio.listar();
+  async listar(paginacion?: PaginacionQueryDto): Promise<ContratoRespuestaDto[]> {
+    return this.repositorio.listar(paginacion);
   }
 
   async actualizar(id: string, dto: ActualizarContratoDto): Promise<ContratoRespuestaDto> {

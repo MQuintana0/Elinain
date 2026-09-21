@@ -212,6 +212,25 @@ describe('Contratos E2E — Apertura y Aislamiento Multi-Tenant (MVP-013)', () =
       }),
     });
     expect(resPorcentajeInvalido.status).toBe(400);
+
+    // Porcentajes válidos individualmente pero que no suman 100 (60 + 60)
+    const resSumaInvalida = await fetch(`${urlBase}/api/v1/contratos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${tokenA}`,
+      },
+      body: JSON.stringify({
+        tercero_id: terceroIdA,
+        finca_id: fincaIdA,
+        fecha_apertura: '2026-09-21T10:00:00.000Z',
+        porcentaje_comerciante: 60,
+        porcentaje_tercero: 60,
+      }),
+    });
+    expect(resSumaInvalida.status).toBe(400);
+    const errSumaInvalida = (await resSumaInvalida.json()) as { mensaje: string };
+    expect(errSumaInvalida.mensaje).toContain('100');
   });
 
   it('permite a Comerciante A aperturar contrato con estado "activo" y aísla los datos frente a Comerciante B', async () => {

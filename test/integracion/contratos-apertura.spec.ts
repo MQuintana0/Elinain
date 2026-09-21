@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import { crearConexionDb } from '../../src/db/conexion';
 import { AccesoDb } from '../../src/db/acceso-db';
@@ -139,5 +139,19 @@ describe('Apertura de contrato — Integración (MVP-013)', () => {
     await expect(
       contexto.ejecutar(usuarioB, () => servicioContratos.buscarPorId(contrato.id)),
     ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('rechaza con BadRequestException si la suma de porcentajes no es igual a 100', async () => {
+    await expect(
+      contexto.ejecutar(usuarioA, () =>
+        servicioContratos.crear({
+          tercero_id: terceroA,
+          finca_id: fincaA,
+          fecha_apertura: '2026-09-21T10:00:00.000Z',
+          porcentaje_comerciante: 60,
+          porcentaje_tercero: 60,
+        }),
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
   });
 });

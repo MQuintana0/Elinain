@@ -5,6 +5,7 @@ import {
   ApiPesoPositivo,
   ApiPorcentaje,
   ApiPrecioPositivo,
+  SumaPorcentajesCien,
 } from '../../src/common/validacion/validadores-numericos';
 
 class NumerosDto {
@@ -21,8 +22,22 @@ class NumerosDto {
   porcentaje!: number;
 }
 
+class PorcentajesDto {
+  @ApiPorcentaje()
+  porcentaje_comerciante!: number;
+
+  @ApiPorcentaje()
+  @SumaPorcentajesCien()
+  porcentaje_tercero!: number;
+}
+
 async function validar(valores: Partial<NumerosDto>) {
   const dto = Object.assign(new NumerosDto(), valores);
+  return validate(dto);
+}
+
+async function validarPorcentajes(valores: Partial<PorcentajesDto>) {
+  const dto = Object.assign(new PorcentajesDto(), valores);
   return validate(dto);
 }
 
@@ -73,5 +88,40 @@ describe('Validadores numéricos reutilizables (MVP-008)', () => {
         expect(metadata.exclusiveMinimum).toBe(true);
       }
     }
+  });
+
+  describe('SumaPorcentajesCien', () => {
+    it.each([
+      [60, 40],
+      [50, 50],
+      [100, 0],
+      [0, 100],
+      [70.5, 29.5],
+    ])('acepta porcentajes que suman exactamente 100: %s + %s', async (pComerciante, pTercero) => {
+      const errores = await validarPorcentajes({
+        porcentaje_comerciante: pComerciante,
+        porcentaje_tercero: pTercero,
+      });
+      expect(errores).toHaveLength(0);
+    });
+
+    it.each([
+      [60, 60],
+      [40, 30],
+      [99.9, 0],
+      [50, 50.1],
+    ])('rechaza porcentajes que no suman 100: %s + %s', async (pComerciante, pTercero) => {
+      const errores = await validarPorcentajes({
+        porcentaje_comerciante: pComerciante,
+        porcentaje_tercero: pTercero,
+      });
+      expect(errores.map((e) => e.property)).toContain('porcentaje_tercero');
+      const mensaje = errores
+        .flatMap((e) => Object.values(e.constraints ?? {}))
+        .find((m) => m.includes('100'));
+      expect(mensaje).toBe(
+        'La suma del porcentaje del comerciante y el porcentaje del tercero debe ser exactamente igual a 100',
+      );
+    });
   });
 });

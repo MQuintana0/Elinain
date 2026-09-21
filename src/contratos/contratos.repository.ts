@@ -6,6 +6,7 @@ import { fincas } from '../db/schema/fincas';
 import { terceros } from '../db/schema/terceros';
 import { obtenerUsuarioIdTenantActual } from '../common/seguridad/contexto-tenant';
 import type { ContratoRespuestaDto } from './dto/contrato-respuesta.dto';
+import type { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
 
 export interface DatosCrearContrato {
   tercero_id: string;
@@ -127,14 +128,14 @@ export class ContratosRepository {
     });
   }
 
-  async listar(): Promise<ContratoRespuestaDto[]> {
+  async listar(paginacion?: PaginacionQueryDto): Promise<ContratoRespuestaDto[]> {
     return this.accesoDb.ejecutarConTenant(async (transaccion) => {
       const usuarioId = obtenerUsuarioIdTenantActual();
       if (!usuarioId) {
         throw new Error('Contexto tenant obligatorio');
       }
 
-      const filas = await transaccion
+      let consulta = transaccion
         .select({
           id: contratos.id,
           tercero_id: contratos.tercero_id,
@@ -152,9 +153,17 @@ export class ContratosRepository {
         .from(contratos)
         .innerJoin(terceros, eq(contratos.tercero_id, terceros.id))
         .where(eq(terceros.usuario_id, usuarioId))
-        .orderBy(contratos.fecha_apertura);
+        .orderBy(contratos.fecha_apertura)
+        .$dynamic();
 
-      return filas;
+      if (paginacion?.limite !== undefined) {
+        consulta = consulta.limit(paginacion.limite);
+      }
+      if (paginacion?.offset !== undefined) {
+        consulta = consulta.offset(paginacion.offset);
+      }
+
+      return consulta;
     });
   }
 

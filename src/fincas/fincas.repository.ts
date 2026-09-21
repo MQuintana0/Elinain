@@ -5,6 +5,7 @@ import { fincas } from '../db/schema/fincas';
 import { terceros } from '../db/schema/terceros';
 import { obtenerUsuarioIdTenantActual } from '../common/seguridad/contexto-tenant';
 import type { FincaRespuestaDto } from './dto/finca-respuesta.dto';
+import type { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
 
 export interface DatosCrearFinca {
   tercero_id: string;
@@ -70,13 +71,13 @@ export class FincasRepository {
     });
   }
 
-  async listar(): Promise<FincaRespuestaDto[]> {
+  async listar(paginacion?: PaginacionQueryDto): Promise<FincaRespuestaDto[]> {
     return this.accesoDb.ejecutarConTenant(async (transaccion) => {
       const usuarioId = obtenerUsuarioIdTenantActual();
       if (!usuarioId) {
         throw new Error('Contexto tenant obligatorio');
       }
-      const filas = await transaccion
+      let consulta = transaccion
         .select({
           id: fincas.id,
           tercero_id: fincas.tercero_id,
@@ -88,9 +89,17 @@ export class FincasRepository {
         .from(fincas)
         .innerJoin(terceros, eq(fincas.tercero_id, terceros.id))
         .where(eq(terceros.usuario_id, usuarioId))
-        .orderBy(fincas.nombre);
+        .orderBy(fincas.nombre)
+        .$dynamic();
 
-      return filas;
+      if (paginacion?.limite !== undefined) {
+        consulta = consulta.limit(paginacion.limite);
+      }
+      if (paginacion?.offset !== undefined) {
+        consulta = consulta.offset(paginacion.offset);
+      }
+
+      return consulta;
     });
   }
 

@@ -47,6 +47,7 @@ export class ContratoRespuestaDto {
   @ApiPropertyOptional({
     description: 'Fecha de cierre del contrato cuando el inventario llega a cero',
     example: null,
+    type: String,
     nullable: true,
   })
   fecha_cierre!: string | null;
@@ -54,6 +55,7 @@ export class ContratoRespuestaDto {
   @ApiPropertyOptional({
     description: 'Raza o cruce del lote de ganado',
     example: 'Brahman Blanco',
+    type: String,
     nullable: true,
   })
   raza!: string | null;
@@ -61,6 +63,7 @@ export class ContratoRespuestaDto {
   @ApiPropertyOptional({
     description: 'Peso promedio actual de los animales en kilogramos',
     example: 350.5,
+    type: Number,
     nullable: true,
   })
   peso_promedio_actual!: number | null;
@@ -68,6 +71,7 @@ export class ContratoRespuestaDto {
   @ApiPropertyOptional({
     description: 'Cantidad actual de cabezas de ganado en el lote',
     example: 50,
+    type: Number,
     nullable: true,
   })
   cantidad_actual!: number | null;
@@ -75,6 +79,7 @@ export class ContratoRespuestaDto {
   @ApiPropertyOptional({
     description: 'Valor por kilo de referencia pactado',
     example: 8500.0,
+    type: Number,
     nullable: true,
   })
   valor_kilo_referencia!: number | null;

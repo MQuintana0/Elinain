@@ -8,6 +8,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -24,6 +25,7 @@ import { ContratosService } from './contratos.service';
 import { CrearContratoDto } from './dto/crear-contrato.dto';
 import { ActualizarContratoDto } from './dto/actualizar-contrato.dto';
 import { ContratoRespuestaDto } from './dto/contrato-respuesta.dto';
+import { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
 import {
   RespuestaErrorNoAutorizadoDto,
   RespuestaErrorNoEncontradoDto,
@@ -106,15 +108,16 @@ export class ContratosController {
 
   @Get()
   @ApiOperation({
-    summary: 'Lista los contratos pertenecientes al comerciante autenticado',
+    summary:
+      'Lista los contratos pertenecientes al comerciante autenticado con paginación opcional',
     description: 'Retorna todos los contratos accesibles por el tenant en sesión activa.',
   })
   @ApiOkResponse({
     description: 'Listado de contratos obtenido exitosamente',
     type: [ContratoRespuestaDto],
   })
-  async listar(): Promise<ContratoRespuestaDto[]> {
-    return this.servicio.listar();
+  async listar(@Query() paginacion?: PaginacionQueryDto): Promise<ContratoRespuestaDto[]> {
+    return this.servicio.listar(paginacion);
   }
 
   @Get(':id')

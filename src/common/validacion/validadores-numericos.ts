@@ -1,6 +1,16 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty, type ApiPropertyOptions } from '@nestjs/swagger';
-import { IsNumber, IsPositive, Max, Min } from 'class-validator';
+import {
+  IsNumber,
+  IsPositive,
+  Max,
+  Min,
+  registerDecorator,
+  type ValidationArguments,
+  type ValidationOptions,
+  ValidatorConstraint,
+  type ValidatorConstraintInterface,
+} from 'class-validator';
 
 const MENSAJE_NUMERO = 'El valor debe ser un número válido';
 
@@ -64,4 +74,37 @@ export function ApiPorcentaje(opciones: ApiPropertyOptions = {}): PropertyDecora
       Max(100, { message: 'El porcentaje no puede ser mayor que cien' }),
     ],
   );
+}
+
+@ValidatorConstraint({ name: 'sumaPorcentajesCien', async: false })
+export class SumaPorcentajesCienConstraint implements ValidatorConstraintInterface {
+  validate(_: unknown, args: ValidationArguments): boolean {
+    const objeto = args.object as {
+      porcentaje_comerciante?: unknown;
+      porcentaje_tercero?: unknown;
+    };
+    if (
+      typeof objeto.porcentaje_comerciante !== 'number' ||
+      typeof objeto.porcentaje_tercero !== 'number'
+    ) {
+      return true;
+    }
+    return Math.abs(objeto.porcentaje_comerciante + objeto.porcentaje_tercero - 100) < 0.0001;
+  }
+
+  defaultMessage(): string {
+    return 'La suma del porcentaje del comerciante y el porcentaje del tercero debe ser exactamente igual a 100';
+  }
+}
+
+export function SumaPorcentajesCien(validationOptions?: ValidationOptions): PropertyDecorator {
+  return function (target: object, propertyName: string | symbol): void {
+    registerDecorator({
+      target: target.constructor,
+      propertyName: propertyName as string,
+      options: validationOptions,
+      constraints: [],
+      validator: SumaPorcentajesCienConstraint,
+    });
+  };
 }

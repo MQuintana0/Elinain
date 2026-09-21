@@ -115,4 +115,25 @@ describe('CRUD Terceros — Integración (MVP-009)', () => {
       contexto.ejecutar(usuarioA, () => servicio.buscarPorId(terceroB.id)),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
+
+  it('soporta paginación con límite y desplazamiento', async () => {
+    const t1 = await contexto.ejecutar(usuarioA, () =>
+      servicio.crear({ nombre: 'AAA Paginacion', documento: 'PAG-1', contacto: '3001' }),
+    );
+    const t2 = await contexto.ejecutar(usuarioA, () =>
+      servicio.crear({ nombre: 'BBB Paginacion', documento: 'PAG-2', contacto: '3002' }),
+    );
+    tercerosCreados.push(t1.id, t2.id);
+
+    const pagina1 = await contexto.ejecutar(usuarioA, () =>
+      servicio.listar({ limite: 1, offset: 0 }),
+    );
+    expect(pagina1).toHaveLength(1);
+
+    const pagina2 = await contexto.ejecutar(usuarioA, () =>
+      servicio.listar({ limite: 1, offset: 1 }),
+    );
+    expect(pagina2).toHaveLength(1);
+    expect(pagina2[0].id).not.toBe(pagina1[0].id);
+  });
 });

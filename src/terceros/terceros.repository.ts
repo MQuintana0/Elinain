@@ -5,6 +5,8 @@ import { terceros } from '../db/schema/terceros';
 import { obtenerUsuarioIdTenantActual } from '../common/seguridad/contexto-tenant';
 import type { TerceroRespuestaDto } from './dto/tercero-respuesta.dto';
 
+import type { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
+
 export interface DatosCrearTercero {
   nombre: string;
   documento: string;
@@ -45,19 +47,27 @@ export class TercerosRepository {
     });
   }
 
-  async listar(): Promise<TerceroRespuestaDto[]> {
+  async listar(paginacion?: PaginacionQueryDto): Promise<TerceroRespuestaDto[]> {
     return this.accesoDb.ejecutarConTenant(async (transaccion) => {
       const usuarioId = obtenerUsuarioIdTenantActual();
       if (!usuarioId) {
         throw new Error('Contexto tenant obligatorio');
       }
-      const filas = await transaccion
+      let consulta = transaccion
         .select()
         .from(terceros)
         .where(eq(terceros.usuario_id, usuarioId))
-        .orderBy(terceros.nombre);
+        .orderBy(terceros.nombre)
+        .$dynamic();
 
-      return filas;
+      if (paginacion?.limite !== undefined) {
+        consulta = consulta.limit(paginacion.limite);
+      }
+      if (paginacion?.offset !== undefined) {
+        consulta = consulta.offset(paginacion.offset);
+      }
+
+      return consulta;
     });
   }
 

@@ -5,6 +5,7 @@ import {
   ApiPesoPositivo,
   ApiPorcentaje,
   ApiPrecioPositivo,
+  SumaPorcentajesCien,
 } from '../../common/validacion/validadores-numericos';
 
 export class CrearContratoDto {
@@ -44,6 +45,7 @@ export class CrearContratoDto {
     example: 40,
   })
   @IsNotEmpty({ message: 'El porcentaje_tercero es obligatorio' })
+  @SumaPorcentajesCien()
   porcentaje_tercero!: number;
 
   @ApiPropertyOptional({

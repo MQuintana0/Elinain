@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -27,6 +28,7 @@ import { FincasService } from './fincas.service';
 import { CrearFincaDto } from './dto/crear-finca.dto';
 import { ActualizarFincaDto } from './dto/actualizar-finca.dto';
 import { FincaRespuestaDto } from './dto/finca-respuesta.dto';
+import { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
 import {
   RespuestaErrorConflictoDto,
   RespuestaErrorNoAutorizadoDto,
@@ -98,10 +100,13 @@ export class FincasController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Lista las fincas pertenecientes a los terceros del comerciante' })
+  @ApiOperation({
+    summary:
+      'Lista las fincas pertenecientes a los terceros del comerciante con paginación opcional',
+  })
   @ApiOkResponse({ description: 'Listado de fincas', type: [FincaRespuestaDto] })
-  listar(): Promise<FincaRespuestaDto[]> {
-    return this.servicio.listar();
+  listar(@Query() paginacion?: PaginacionQueryDto): Promise<FincaRespuestaDto[]> {
+    return this.servicio.listar(paginacion);
   }
 
   @Get(':id')

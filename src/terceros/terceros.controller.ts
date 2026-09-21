@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -27,6 +28,7 @@ import { TercerosService } from './terceros.service';
 import { CrearTerceroDto } from './dto/crear-tercero.dto';
 import { ActualizarTerceroDto } from './dto/actualizar-tercero.dto';
 import { TerceroRespuestaDto } from './dto/tercero-respuesta.dto';
+import { PaginacionQueryDto } from '../common/dto/paginacion-query.dto';
 import {
   RespuestaErrorConflictoDto,
   RespuestaErrorNoAutorizadoDto,
@@ -89,10 +91,12 @@ export class TercerosController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Lista los terceros pertenecientes al comerciante autenticado' })
+  @ApiOperation({
+    summary: 'Lista los terceros pertenecientes al comerciante autenticado con paginación opcional',
+  })
   @ApiOkResponse({ description: 'Listado de terceros', type: [TerceroRespuestaDto] })
-  listar(): Promise<TerceroRespuestaDto[]> {
-    return this.servicio.listar();
+  listar(@Query() paginacion?: PaginacionQueryDto): Promise<TerceroRespuestaDto[]> {
+    return this.servicio.listar(paginacion);
   }
 
   @Get(':id')
