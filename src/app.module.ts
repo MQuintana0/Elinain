@@ -11,12 +11,14 @@ import { CostosModule } from './costos/costos.module';
 import { ReportesModule } from './reportes/reportes.module';
 import { HealthModule } from './health/health.module';
 import { CommonModule } from './common/common.module';
+import { DbModule } from './db/db.module';
 import { InterceptorContextoTenant } from './common/seguridad/interceptor-contexto-tenant';
 import { TenantGuard } from './common/seguridad/tenant.guard';
 
 @Module({
   imports: [
     CommonModule,
+    DbModule,
     UsuariosModule,
     TercerosModule,
     FincasModule,

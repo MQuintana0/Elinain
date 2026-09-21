@@ -6,6 +6,9 @@ import { AppModule } from './app.module';
 import { FiltroExcepcionesHttp } from './common/filters/filtro-excepciones-http';
 import { InterceptorFormatoRespuesta } from './common/interceptors/interceptor-formato-respuesta';
 import { InterceptorRegistroPeticion } from './common/interceptors/interceptor-registro-peticion';
+import { cargarVariablesEntorno } from './common/cargar-entorno';
+
+cargarVariablesEntorno();
 
 export function configurarDocumentacion(app: INestApplication): OpenAPIObject {
   const configuracion = new DocumentBuilder()
