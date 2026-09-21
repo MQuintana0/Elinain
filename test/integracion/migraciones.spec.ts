@@ -15,8 +15,9 @@ describe('Bootstrap de migraciones RLS (MVP-007)', () => {
       '0001_mvp007_rls_contexto',
       '0002_contratos',
       '0003_compras',
+      '0004_ventas',
     ]);
-    expect(journal.entries.map((entrada) => entrada.idx)).toEqual([0, 1, 2, 3]);
+    expect(journal.entries.map((entrada) => entrada.idx)).toEqual([0, 1, 2, 3, 4]);
     expect(journal.entries.every((entrada) => entrada.breakpoints === false)).toBe(true);
     for (const tag of tags) {
       expect(fs.existsSync(path.join(raiz, 'drizzle', `${tag}.sql`))).toBe(true);

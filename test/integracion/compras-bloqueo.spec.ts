@@ -64,23 +64,24 @@ describe('Bloqueo de compras cuando hay ventas (MVP-017 / RF-12)', () => {
     );
     compraId = compra.id;
 
-    // 6. Crear tabla ventas temporal y registrar una venta vinculada al contrato
+    // 6. Registrar una venta vinculada al contrato para probar el bloqueo
     await admin.db.execute(sql`
-      CREATE TABLE IF NOT EXISTS ventas (
-        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-        contrato_id uuid NOT NULL REFERENCES contratos(id)
-      );
-      GRANT SELECT ON ventas TO elinain_runtime;
-    `);
-
-    await admin.db.execute(sql`
-      INSERT INTO ventas (id, contrato_id) VALUES (${ventaId}, ${contrato})
+      INSERT INTO ventas (
+        id, contrato_id, fecha, cantidad_vendida, peso_promedio_venta, precio_kilo_venta,
+        valor_bruto, precio_compra_por_animal_promedio, peso_promedio_compra_simple,
+        costo_estimado_compra, utilidad_total, valor_comerciante, valor_tercero,
+        kilos_ganados_promedio, utilidad_real, porcentaje_utilidad_total
+      ) VALUES (
+        ${ventaId}, ${contrato}, '2026-09-21T10:00:00.000Z', 5, 350, 8500,
+        14875000, 2624000, 320, 13120000, 1755000, 1053000, 702000,
+        30, 1053000, 13.38
+      )
     `);
   });
 
   afterAll(async () => {
     try {
-      await admin.db.execute(sql`DROP TABLE IF EXISTS ventas CASCADE`);
+      await admin.db.execute(sql`DELETE FROM ventas WHERE id = ${ventaId}`);
       if (compraId) {
         await admin.db.execute(sql`DELETE FROM compras WHERE id = ${compraId}`);
       }
