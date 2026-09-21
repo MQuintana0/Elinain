@@ -40,10 +40,24 @@ import {
 @ApiUnauthorizedResponse({
   description: 'No autorizado: token JWT ausente o inválido',
   type: RespuestaErrorNoAutorizadoDto,
+  example: {
+    exito: false,
+    mensaje: 'No autorizado: token JWT ausente o inválido',
+    codigoEstado: 401,
+    ruta: '/api/v1/terceros',
+    marcaTiempo: '2026-09-21T16:00:00.000Z',
+  },
 })
 @ApiInternalServerErrorResponse({
   description: 'Error interno del servidor',
   type: RespuestaErrorServidorDto,
+  example: {
+    exito: false,
+    mensaje: 'Error interno del servidor',
+    codigoEstado: 500,
+    ruta: '/api/v1/terceros',
+    marcaTiempo: '2026-09-21T16:00:00.000Z',
+  },
 })
 @Controller('terceros')
 export class TercerosController {
@@ -56,6 +70,18 @@ export class TercerosController {
   @ApiBadRequestResponse({
     description: 'Datos de creación del tercero inválidos o incompletos',
     type: RespuestaErrorValidacionDto,
+    example: {
+      exito: false,
+      mensaje:
+        'Error de validación en la petición: El nombre es obligatorio; El tipo de tercero debe ser criador, cebador o comisionista',
+      errores: [
+        'El nombre es obligatorio',
+        'El tipo de tercero debe ser criador, cebador o comisionista',
+      ],
+      codigoEstado: 400,
+      ruta: '/api/v1/terceros',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   crear(@Body() dto: CrearTerceroDto): Promise<TerceroRespuestaDto> {
     return this.servicio.crear(dto);
@@ -76,10 +102,26 @@ export class TercerosController {
   @ApiBadRequestResponse({
     description: 'Identificador no es un UUID válido',
     type: RespuestaErrorValidacionDto,
+    example: {
+      exito: false,
+      mensaje: 'Error de validación en la petición: Validation failed (uuid is expected)',
+      errores: ['Validation failed (uuid is expected)'],
+      codigoEstado: 400,
+      ruta: '/api/v1/terceros/invalido',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   @ApiNotFoundResponse({
     description: 'Tercero no encontrado o no pertenece al comerciante',
     type: RespuestaErrorNoEncontradoDto,
+    example: {
+      exito: false,
+      mensaje: 'Tercero no encontrado',
+      errores: ['Tercero no encontrado'],
+      codigoEstado: 404,
+      ruta: '/api/v1/terceros/3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   buscarPorId(@Param('id', ParseUUIDPipe) id: string): Promise<TerceroRespuestaDto> {
     return this.servicio.buscarPorId(id);
@@ -92,10 +134,27 @@ export class TercerosController {
   @ApiBadRequestResponse({
     description: 'Datos de actualización inválidos o identificador no es UUID válido',
     type: RespuestaErrorValidacionDto,
+    example: {
+      exito: false,
+      mensaje:
+        'Error de validación en la petición: El tipo de tercero debe ser criador, cebador o comisionista',
+      errores: ['El tipo de tercero debe ser criador, cebador o comisionista'],
+      codigoEstado: 400,
+      ruta: '/api/v1/terceros/3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   @ApiNotFoundResponse({
     description: 'Tercero no encontrado o no pertenece al comerciante',
     type: RespuestaErrorNoEncontradoDto,
+    example: {
+      exito: false,
+      mensaje: 'Tercero no encontrado',
+      errores: ['Tercero no encontrado'],
+      codigoEstado: 404,
+      ruta: '/api/v1/terceros/3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   actualizar(
     @Param('id', ParseUUIDPipe) id: string,
@@ -111,14 +170,38 @@ export class TercerosController {
   @ApiBadRequestResponse({
     description: 'Identificador no es un UUID válido',
     type: RespuestaErrorValidacionDto,
+    example: {
+      exito: false,
+      mensaje: 'Error de validación en la petición: Validation failed (uuid is expected)',
+      errores: ['Validation failed (uuid is expected)'],
+      codigoEstado: 400,
+      ruta: '/api/v1/terceros/invalido',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   @ApiNotFoundResponse({
     description: 'Tercero no encontrado o no pertenece al comerciante',
     type: RespuestaErrorNoEncontradoDto,
+    example: {
+      exito: false,
+      mensaje: 'Tercero no encontrado',
+      errores: ['Tercero no encontrado'],
+      codigoEstado: 404,
+      ruta: '/api/v1/terceros/3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   @ApiConflictResponse({
     description: 'No se puede eliminar el tercero porque tiene contratos activos asociados',
     type: RespuestaErrorConflictoDto,
+    example: {
+      exito: false,
+      mensaje: 'No se puede eliminar el tercero porque tiene contratos activos asociados',
+      errores: ['No se puede eliminar el tercero porque tiene contratos activos asociados'],
+      codigoEstado: 409,
+      ruta: '/api/v1/terceros/3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   eliminar(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
     return this.servicio.eliminar(id);

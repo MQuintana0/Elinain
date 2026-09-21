@@ -23,13 +23,13 @@ export class BaseRespuestaErrorDto {
 export class RespuestaErrorValidacionDto extends BaseRespuestaErrorDto {
   @ApiProperty({
     description: 'Mensaje descriptivo del fallo de validación',
-    example: 'Error de validación en la petición: El email debe ser un correo válido',
+    example: 'Error de validación en la petición: Parámetros inválidos o incompletos',
   })
   mensaje!: string;
 
   @ApiPropertyOptional({
     description: 'Lista detallada de restricciones de validación no cumplidas',
-    example: ['El email debe ser un correo válido'],
+    example: ['Parámetros inválidos o incompletos'],
     type: [String],
   })
   errores?: string[];

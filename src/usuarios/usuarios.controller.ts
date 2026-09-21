@@ -46,14 +46,41 @@ export class UsuariosController {
   @ApiBadRequestResponse({
     description: 'Datos de registro inválidos o incompletos',
     type: RespuestaErrorValidacionDto,
+    example: {
+      exito: false,
+      mensaje:
+        'Error de validación en la petición: El email debe ser un correo válido; La contraseña debe tener al menos 8 caracteres',
+      errores: [
+        'El email debe ser un correo válido',
+        'La contraseña debe tener al menos 8 caracteres',
+      ],
+      codigoEstado: 400,
+      ruta: '/api/v1/usuarios/registro',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   @ApiConflictResponse({
     description: 'El correo electrónico ya se encuentra registrado',
     type: RespuestaErrorConflictoDto,
+    example: {
+      exito: false,
+      mensaje: 'El correo electrónico ya se encuentra registrado',
+      errores: ['El correo electrónico ya se encuentra registrado'],
+      codigoEstado: 409,
+      ruta: '/api/v1/usuarios/registro',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   @ApiInternalServerErrorResponse({
     description: 'Error interno del servidor',
     type: RespuestaErrorServidorDto,
+    example: {
+      exito: false,
+      mensaje: 'Error interno del servidor',
+      codigoEstado: 500,
+      ruta: '/api/v1/usuarios/registro',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   registrar(@Body() dto: CrearUsuarioDto): Promise<UsuarioRegistradoDto> {
     return this.servicio.registrar(dto);
@@ -67,14 +94,37 @@ export class UsuariosController {
   @ApiBadRequestResponse({
     description: 'Credenciales con formato inválido',
     type: RespuestaErrorValidacionDto,
+    example: {
+      exito: false,
+      mensaje: 'Error de validación en la petición: El email debe ser un correo válido',
+      errores: ['El email debe ser un correo válido'],
+      codigoEstado: 400,
+      ruta: '/api/v1/usuarios/acceso',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   @ApiUnauthorizedResponse({
     description: 'Credenciales de acceso inválidas',
     type: RespuestaErrorNoAutorizadoDto,
+    example: {
+      exito: false,
+      mensaje: 'Credenciales de acceso inválidas',
+      errores: ['Credenciales de acceso inválidas'],
+      codigoEstado: 401,
+      ruta: '/api/v1/usuarios/acceso',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   @ApiInternalServerErrorResponse({
     description: 'Error interno del servidor',
     type: RespuestaErrorServidorDto,
+    example: {
+      exito: false,
+      mensaje: 'Error interno del servidor',
+      codigoEstado: 500,
+      ruta: '/api/v1/usuarios/acceso',
+      marcaTiempo: '2026-09-21T16:00:00.000Z',
+    },
   })
   acceder(@Body() dto: CredencialesAccesoDto): Promise<AccesoRespuestaDto> {
     return this.acceso.iniciarSesion(dto);
