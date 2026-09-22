@@ -41,8 +41,14 @@ Backend en NestJS para la gestión ganadera multi-tenant de comerciantes que com
 Elinain automatiza y centraliza la operativa comercial ganadera:
 
 - **Aislamiento Multi-Tenant:** Cada comerciante gestiona su propio entorno de forma aislada. La seguridad se aplica en dos capas: `TenantGuard` global a nivel de aplicación y políticas de Row-Level Security (RLS) en PostgreSQL sobre las tablas de tenant.
-- **Terceros y Fincas:** Registro de terceros propietarios y fincas asociadas geolocalizadas mediante la extensión espacial **PostGIS**.
-- **Seguridad:** Autenticación de usuarios mediante JWT con contraseñas encriptadas con `bcrypt`.
+- **Terceros y Fincas:** Registro de terceros socios y fincas geolocalizadas mediante la extensión espacial **PostGIS**.
+- **Contratos de Participación:** Apertura de lotes vinculando tercero, finca y pacto de porcentajes inmutable (`porcentaje_comerciante` / `porcentaje_tercero`).
+- **Compras y Fusiones:** Ingreso de animales al lote con cálculo automático de valor total y recálculo del promedio simple visible del contrato.
+- **Ventas y Motor Financiero Puro (`UtilidadService`):** Salida de animales con promedio simple a la fecha de venta, cálculo de utilidad total antes del reparto, distribución exacta entre socios y congelamiento de snapshots históricos inmutables. Cierre automático del contrato al vaciar el lote.
+- **Ciclos y Checkpoints:** Eventos libres de control operativo (pesajes observados y notas cualitativas) con mutación libre en contratos activos.
+- **Costos Informativos:** Registro de fletes de compra y gastos operativos para seguimiento contable, garantizando que nunca restan ni alteran la `utilidad_real`.
+- **Dashboard y Reportes Agregados:** Métricas globales en tiempo real (contratos activos/cerrados, inventario vivo, utilidades acumuladas e historial de ventas) calculadas directamente por agregación SQL sin inventar fórmulas nuevas.
+- **Seguridad:** Autenticación JWT con contraseñas encriptadas con `bcrypt`.
 
 ---
 
@@ -76,7 +82,7 @@ flowchart TD
 
 ### Flujo Actual Implementado en Elinain
 
-El flujo implementado resuelve el problema desde la raíz, digitalizando la identidad del comerciante, sus socios y la ubicación geográfica de sus fincas con aislamiento estricto:
+El flujo implementado cubre el ciclo de vida completo del negocio ganadero con separación estricta de responsabilidades:
 
 ```mermaid
 flowchart TD
@@ -91,28 +97,25 @@ flowchart TD
         ICT --> VP["ValidationPipe Global\n(DTOs estrictos: 400 en español)"]
     end
 
-    subgraph Dominio["3. Módulos de Dominio"]
-        VP -- "Rutas /api/v1/terceros" --> TC["TercerosController\n(CRUD Socios de Finca)"]
-        VP -- "Rutas /api/v1/fincas" --> FC["FincasController\n(CRUD Fincas Geolocalizadas)"]
-
-        TC --> TS["TercerosService\n(Guarda referencial de contratos)"]
-        FC --> FS["FincasService\n(Valida tercero propio del tenant)"]
-
-        TS --> TR["TercerosRepository"]
-        FS --> FR["FincasRepository"]
+    subgraph Dominio["3. Módulos de Dominio (Fases 1 a 6)"]
+        VP -- "/terceros & /fincas" --> TF["Terceros y Fincas\n(PostGIS Point 4326)"]
+        VP -- "/contratos" --> CT["Contratos\n(Invariante par porcentajes 100%)"]
+        VP -- "/compras" --> CP["Compras\n(Fusión + Recálculo Promedio Simple)"]
+        VP -- "/ventas" --> VT["Ventas\n(UtilidadService + Snapshots Inmutables)"]
+        VP -- "/ciclos" --> CI["Ciclos\n(Checkpoints de Control)"]
+        VP -- "/costos" --> CS["Costos\n(Informativos: No alteran utilidad)"]
+        VP -- "/reportes" --> RP["Reportes\n(Dashboard, Activos, Historial)"]
     end
 
     subgraph Persistencia["4. Base de Datos y Aislamiento RLS"]
-        TR & FR --> ADB["AccesoDb.ejecutarConTenant\n(SET LOCAL app.usuario_id)"]
+        TF & CT & CP & VT & CI & CS & RP --> ADB["AccesoDb.ejecutarConTenant\n(SET LOCAL app.usuario_id)"]
         ADB --> PG[("PostgreSQL 16 + PostGIS")]
 
-        PG --- RLS1["RLS en 'terceros'\n(usuario_id = app.usuario_id)"]
-        PG --- RLS2["RLS en 'fincas'\n(join finca->tercero->usuario_id)"]
-        PG --- GIS["PostGIS\n(ubicacion Point SRID 4326)"]
+        PG --- RLS["Políticas RLS en todas las tablas\n(terceros, fincas, contratos, compras, ventas, ciclos, costos)"]
     end
 
-    subgraph Docs["5. Documentación y Contratos Interactivos"]
-        TC & FC -. "Contratos y DTOs OpenAPI" .-> DOCS["Todos los endpoints documentados\n(Scalar /referencia o Swagger /docs)"]
+    subgraph Docs["5. Documentación Interactiva"]
+    Dominio -. "Contratos y DTOs OpenAPI" .-> DOCS["Scalar /referencia | Swagger /docs"]
     end
 ```
 
@@ -131,7 +134,7 @@ flowchart TD
 
 ## Exploración de la API
 
-Todos los endpoints disponibles en el sistema (salud, registro, inicio de sesión, terceros y fincas geolocalizadas) están completamente documentados con sus contratos, DTOs de entrada y esquemas de respuesta. Puedes usar la interfaz que prefieras para revisarlos:
+Todos los endpoints disponibles en el sistema (salud, registro, inicio de sesión, terceros, fincas geolocalizadas, contratos, compras, ventas con cálculo financiero, ciclos de control, costos informativos y dashboard de reportes) están completamente documentados con sus contratos, DTOs de entrada y esquemas de respuesta. Puedes usar la interfaz que prefieras para revisarlos:
 
 | Interfaz       | Entorno Local                      | Producción                                                                                             | Descripción                                                                         |
 | -------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |

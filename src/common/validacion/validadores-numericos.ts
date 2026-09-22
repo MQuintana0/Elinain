@@ -1,7 +1,8 @@
 import { applyDecorators } from '@nestjs/common';
-import { ApiProperty, type ApiPropertyOptions } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, type ApiPropertyOptions } from '@nestjs/swagger';
 import {
   IsNumber,
+  IsOptional,
   IsPositive,
   Max,
   Min,
@@ -58,6 +59,48 @@ export function ApiPrecioPositivo(opciones: ApiPropertyOptions = {}): PropertyDe
       ...opciones,
     },
     [IsPositive({ message: 'El precio debe ser mayor que cero' })],
+  );
+}
+
+export function ApiMontoPositivo(opciones: ApiPropertyOptions = {}): PropertyDecorator {
+  return propiedadNumerica(
+    {
+      description: 'Monto estrictamente mayor que cero',
+      minimum: 0,
+      exclusiveMinimum: true,
+      ...opciones,
+    },
+    [IsPositive({ message: 'El monto debe ser mayor que cero' })],
+  );
+}
+
+export function ApiPesoOpcionalPositivo(opciones: ApiPropertyOptions = {}): PropertyDecorator {
+  return applyDecorators(
+    ApiPropertyOptional({
+      type: Number,
+      description: 'Peso estrictamente mayor que cero (opcional)',
+      minimum: 0,
+      exclusiveMinimum: true,
+      ...opciones,
+    }),
+    IsOptional(),
+    IsNumber({ allowInfinity: false, allowNaN: false }, { message: MENSAJE_NUMERO }),
+    IsPositive({ message: 'El peso debe ser mayor que cero' }),
+  );
+}
+
+export function ApiMontoOpcionalPositivo(opciones: ApiPropertyOptions = {}): PropertyDecorator {
+  return applyDecorators(
+    ApiPropertyOptional({
+      type: Number,
+      description: 'Monto estrictamente mayor que cero (opcional)',
+      minimum: 0,
+      exclusiveMinimum: true,
+      ...opciones,
+    }),
+    IsOptional(),
+    IsNumber({ allowInfinity: false, allowNaN: false }, { message: MENSAJE_NUMERO }),
+    IsPositive({ message: 'El monto debe ser mayor que cero' }),
   );
 }
 

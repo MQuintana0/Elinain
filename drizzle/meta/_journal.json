@@ -36,6 +36,13 @@
       "when": 1789997004000,
       "tag": "0004_ventas",
       "breakpoints": false
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789997005000,
+      "tag": "0005_ciclos_costos",
+      "breakpoints": false
     }
   ]
 }
