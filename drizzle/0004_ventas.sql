@@ -42,4 +42,11 @@ CREATE POLICY aislamiento_ventas ON ventas
     )
   );
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ventas TO elinain_runtime;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'elinain_runtime') THEN
+    GRANT SELECT, INSERT, UPDATE, DELETE ON ventas TO elinain_runtime;
+  END IF;
+END
+$$;
+

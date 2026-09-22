@@ -36,4 +36,11 @@ CREATE POLICY aislamiento_contratos ON contratos
     )
   );
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON contratos TO elinain_runtime;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'elinain_runtime') THEN
+    GRANT SELECT, INSERT, UPDATE, DELETE ON contratos TO elinain_runtime;
+  END IF;
+END
+$$;
+

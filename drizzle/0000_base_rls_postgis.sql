@@ -80,6 +80,12 @@ CREATE POLICY aislamiento_fincas ON fincas
     )
   );
 
--- The application never runs as the migration/admin role.
-GRANT USAGE ON SCHEMA public TO elinain_runtime;
-GRANT SELECT, INSERT, UPDATE, DELETE ON usuarios, terceros, fincas TO elinain_runtime;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'elinain_runtime') THEN
+    GRANT USAGE ON SCHEMA public TO elinain_runtime;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON usuarios, terceros, fincas TO elinain_runtime;
+  END IF;
+END
+$$;
+
