@@ -20,6 +20,8 @@ export class ActualizarCicloDto {
   @ApiPropertyOptional({
     description: 'Notas o comentarios cualitativos opcionales sobre el lote o pasturas',
     example: 'Ajuste en pesaje tras desparasitación',
+    type: String,
+    nullable: true,
   })
   @IsOptional()
   @IsString({ message: 'Las notas deben ser un texto' })

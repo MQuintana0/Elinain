@@ -10,6 +10,8 @@ import {
   ApiOperation,
   ApiProperty,
   ApiTags,
+  DocumentBuilder,
+  SwaggerModule,
 } from '@nestjs/swagger';
 import { IsInt, Min } from 'class-validator';
 import { configurarDocumentacion } from '../../src/main';
@@ -17,6 +19,8 @@ import {
   RespuestaErrorNoEncontradoDto,
   RespuestaErrorValidacionDto,
 } from '../../src/common/dto/respuesta-error.dto';
+import { CrearCicloDto } from '../../src/ciclos/dto/crear-ciclo.dto';
+import { ActualizarCicloDto } from '../../src/ciclos/dto/actualizar-ciclo.dto';
 
 // DTO temporal de prueba: existe solo para verificar que las reglas
 // de validación se reflejan en el esquema OpenAPI. No crea dominio (Fase 1+ intacta).
@@ -49,6 +53,7 @@ class ControladorEjemploDocs {
 interface EsquemaPropiedad {
   minimum?: number;
   type?: string;
+  nullable?: boolean;
 }
 
 interface EsquemaDto {
@@ -123,5 +128,21 @@ describe('Documentación API Swagger + Scalar (MVP-004)', () => {
     expect(esquema404).toBeDefined();
     expect(esquema404?.properties?.['codigoEstado']).toBeDefined();
     expect(esquema404?.properties?.['mensaje']).toBeDefined();
+  });
+
+  it('refleja notas en CrearCicloDto y ActualizarCicloDto como tipo string (no object) en OpenAPI', () => {
+    const configuracion = new DocumentBuilder().setTitle('Test').build();
+    const doc = SwaggerModule.createDocument(app, configuracion, {
+      extraModels: [CrearCicloDto, ActualizarCicloDto],
+    }) as unknown as DocumentoOpenApi;
+    const crearCiclo = doc.components?.schemas?.['CrearCicloDto'];
+    expect(crearCiclo).toBeDefined();
+    expect(crearCiclo?.properties?.['notas']?.type).toBe('string');
+    expect(crearCiclo?.properties?.['notas']?.nullable).toBe(true);
+
+    const actualizarCiclo = doc.components?.schemas?.['ActualizarCicloDto'];
+    expect(actualizarCiclo).toBeDefined();
+    expect(actualizarCiclo?.properties?.['notas']?.type).toBe('string');
+    expect(actualizarCiclo?.properties?.['notas']?.nullable).toBe(true);
   });
 });

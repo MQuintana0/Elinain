@@ -28,6 +28,8 @@ export class CrearCicloDto {
   @ApiPropertyOptional({
     description: 'Notas o comentarios cualitativos opcionales sobre el lote o pasturas',
     example: 'Buen rebrote de pasturas, sin signos de enfermedad',
+    type: String,
+    nullable: true,
   })
   @IsOptional()
   @IsString({ message: 'Las notas deben ser un texto' })
