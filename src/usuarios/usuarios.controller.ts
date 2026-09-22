@@ -29,6 +29,10 @@ import {
   RespuestaErrorValidacionDto,
 } from '../common/dto/respuesta-error.dto';
 import { RutaPublica } from '../common/seguridad/ruta-publica.decorator';
+import { CrearRespuestaExitosaDto } from '../common/dto/respuesta-exitosa.dto';
+
+const RespuestaRegistroDto = CrearRespuestaExitosaDto(UsuarioRegistradoDto, 'RespuestaRegistroDto');
+const RespuestaAccesoDto = CrearRespuestaExitosaDto(AccesoRespuestaDto, 'RespuestaAccesoDto');
 
 @ApiTags('usuarios')
 @Controller('usuarios')
@@ -42,7 +46,7 @@ export class UsuariosController {
   @RutaPublica()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registra el perfil del comerciante' })
-  @ApiCreatedResponse({ description: 'Comerciante registrado', type: UsuarioRegistradoDto })
+  @ApiCreatedResponse({ description: 'Comerciante registrado', type: RespuestaRegistroDto })
   @ApiBadRequestResponse({
     description: 'Datos de registro inválidos o incompletos',
     type: RespuestaErrorValidacionDto,
@@ -90,7 +94,7 @@ export class UsuariosController {
   @RutaPublica()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Inicia sesión y emite el JWT de acceso' })
-  @ApiOkResponse({ description: 'Acceso concedido', type: AccesoRespuestaDto })
+  @ApiOkResponse({ description: 'Acceso concedido', type: RespuestaAccesoDto })
   @ApiBadRequestResponse({
     description: 'Credenciales con formato inválido',
     type: RespuestaErrorValidacionDto,

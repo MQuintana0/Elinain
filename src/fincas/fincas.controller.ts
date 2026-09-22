@@ -38,6 +38,13 @@ import {
   RespuestaErrorServidorDto,
   RespuestaErrorValidacionDto,
 } from '../common/dto/respuesta-error.dto';
+import { CrearRespuestaExitosaDto } from '../common/dto/respuesta-exitosa.dto';
+
+const RespuestaFincaDto = CrearRespuestaExitosaDto(FincaRespuestaDto, 'RespuestaFincaDto');
+const RespuestaPaginaFincasDto = CrearRespuestaExitosaDto(
+  PaginaFincasDto,
+  'RespuestaPaginaFincasDto',
+);
 
 @ApiTags('fincas')
 @ApiBearerAuth()
@@ -70,7 +77,7 @@ export class FincasController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registra una nueva finca geolocalizada asociada a un tercero' })
-  @ApiCreatedResponse({ description: 'Finca registrada exitosamente', type: FincaRespuestaDto })
+  @ApiCreatedResponse({ description: 'Finca registrada exitosamente', type: RespuestaFincaDto })
   @ApiBadRequestResponse({
     description: 'Datos de la finca inválidos (e.g. coordenadas fuera de rango)',
     type: RespuestaErrorValidacionDto,
@@ -105,7 +112,7 @@ export class FincasController {
   @ApiOperation({
     summary: 'Lista las fincas pertenecientes a los terceros del comerciante con paginación',
   })
-  @ApiOkResponse({ description: 'Listado de fincas paginado', type: PaginaFincasDto })
+  @ApiOkResponse({ description: 'Listado de fincas paginado', type: RespuestaPaginaFincasDto })
   listar(@Query() paginacion?: PaginacionQueryDto): Promise<PaginaResultado<FincaRespuestaDto>> {
     return this.servicio.listar(paginacion);
   }
@@ -113,7 +120,7 @@ export class FincasController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Obtiene el detalle de una finca por ID' })
-  @ApiOkResponse({ description: 'Finca encontrada', type: FincaRespuestaDto })
+  @ApiOkResponse({ description: 'Finca encontrada', type: RespuestaFincaDto })
   @ApiBadRequestResponse({
     description: 'Identificador no es un UUID válido',
     type: RespuestaErrorValidacionDto,
@@ -145,7 +152,7 @@ export class FincasController {
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Actualiza los datos o coordenadas de una finca' })
-  @ApiOkResponse({ description: 'Finca actualizada', type: FincaRespuestaDto })
+  @ApiOkResponse({ description: 'Finca actualizada', type: RespuestaFincaDto })
   @ApiBadRequestResponse({
     description: 'Datos de actualización inválidos o identificador no es UUID válido',
     type: RespuestaErrorValidacionDto,

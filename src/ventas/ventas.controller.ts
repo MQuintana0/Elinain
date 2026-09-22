@@ -36,6 +36,13 @@ import {
   RespuestaErrorServidorDto,
   RespuestaErrorValidacionDto,
 } from '../common/dto/respuesta-error.dto';
+import { CrearRespuestaExitosaDto } from '../common/dto/respuesta-exitosa.dto';
+
+const RespuestaVentaDto = CrearRespuestaExitosaDto(VentaRespuestaDto, 'RespuestaVentaDto');
+const RespuestaPaginaVentasDto = CrearRespuestaExitosaDto(
+  PaginaVentasDto,
+  'RespuestaPaginaVentasDto',
+);
 
 @ApiTags('ventas')
 @ApiBearerAuth()
@@ -74,7 +81,7 @@ export class VentasController {
   })
   @ApiCreatedResponse({
     description: 'Venta registrada e indicadores calculados exitosamente',
-    type: VentaRespuestaDto,
+    type: RespuestaVentaDto,
   })
   @ApiBadRequestResponse({
     description:
@@ -113,7 +120,7 @@ export class VentasController {
   })
   @ApiOkResponse({
     description: 'Listado de ventas obtenido exitosamente',
-    type: PaginaVentasDto,
+    type: RespuestaPaginaVentasDto,
   })
   async listar(@Query() query?: ListarVentasQueryDto): Promise<PaginaResultado<VentaRespuestaDto>> {
     return this.servicio.listar(query?.contrato_id, query);
@@ -126,7 +133,7 @@ export class VentasController {
   })
   @ApiOkResponse({
     description: 'Venta encontrada y retornada',
-    type: VentaRespuestaDto,
+    type: RespuestaVentaDto,
   })
   @ApiBadRequestResponse({
     description: 'Identificador UUID con formato inválido',

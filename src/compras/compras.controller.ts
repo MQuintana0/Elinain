@@ -37,6 +37,13 @@ import {
   RespuestaErrorServidorDto,
   RespuestaErrorValidacionDto,
 } from '../common/dto/respuesta-error.dto';
+import { CrearRespuestaExitosaDto } from '../common/dto/respuesta-exitosa.dto';
+
+const RespuestaCompraDto = CrearRespuestaExitosaDto(CompraRespuestaDto, 'RespuestaCompraDto');
+const RespuestaPaginaComprasDto = CrearRespuestaExitosaDto(
+  PaginaComprasDto,
+  'RespuestaPaginaComprasDto',
+);
 
 @ApiTags('compras')
 @ApiBearerAuth()
@@ -75,7 +82,7 @@ export class ComprasController {
   })
   @ApiCreatedResponse({
     description: 'Compra registrada exitosamente',
-    type: CompraRespuestaDto,
+    type: RespuestaCompraDto,
   })
   @ApiBadRequestResponse({
     description: 'Datos de la compra inválidos (campos faltantes, valores <= 0) o contrato cerrado',
@@ -112,7 +119,7 @@ export class ComprasController {
   })
   @ApiOkResponse({
     description: 'Listado de compras obtenido exitosamente',
-    type: PaginaComprasDto,
+    type: RespuestaPaginaComprasDto,
   })
   async listar(
     @Query() query?: ListarComprasQueryDto,
@@ -127,7 +134,7 @@ export class ComprasController {
   })
   @ApiOkResponse({
     description: 'Compra encontrada y retornada',
-    type: CompraRespuestaDto,
+    type: RespuestaCompraDto,
   })
   @ApiBadRequestResponse({
     description: 'Identificador UUID con formato inválido',
@@ -169,7 +176,7 @@ export class ComprasController {
   })
   @ApiOkResponse({
     description: 'Compra actualizada y contrato sincronizado exitosamente',
-    type: CompraRespuestaDto,
+    type: RespuestaCompraDto,
   })
   @ApiBadRequestResponse({
     description: 'Datos de actualización inválidos o identificador no es UUID válido',

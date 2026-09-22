@@ -38,6 +38,13 @@ import {
   RespuestaErrorServidorDto,
   RespuestaErrorValidacionDto,
 } from '../common/dto/respuesta-error.dto';
+import { CrearRespuestaExitosaDto } from '../common/dto/respuesta-exitosa.dto';
+
+const RespuestaTerceroDto = CrearRespuestaExitosaDto(TerceroRespuestaDto, 'RespuestaTerceroDto');
+const RespuestaPaginaTercerosDto = CrearRespuestaExitosaDto(
+  PaginaTercerosDto,
+  'RespuestaPaginaTercerosDto',
+);
 
 @ApiTags('terceros')
 @ApiBearerAuth()
@@ -70,7 +77,7 @@ export class TercerosController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Registra un nuevo tercero asociado al comerciante' })
-  @ApiCreatedResponse({ description: 'Tercero creado exitosamente', type: TerceroRespuestaDto })
+  @ApiCreatedResponse({ description: 'Tercero creado exitosamente', type: RespuestaTerceroDto })
   @ApiBadRequestResponse({
     description: 'Datos de creación del tercero inválidos o incompletos',
     type: RespuestaErrorValidacionDto,
@@ -96,7 +103,7 @@ export class TercerosController {
   @ApiOperation({
     summary: 'Lista los terceros pertenecientes al comerciante autenticado con paginación',
   })
-  @ApiOkResponse({ description: 'Listado de terceros paginado', type: PaginaTercerosDto })
+  @ApiOkResponse({ description: 'Listado de terceros paginado', type: RespuestaPaginaTercerosDto })
   listar(@Query() paginacion?: PaginacionQueryDto): Promise<PaginaResultado<TerceroRespuestaDto>> {
     return this.servicio.listar(paginacion);
   }
@@ -104,7 +111,7 @@ export class TercerosController {
   @Get(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Obtiene el detalle de un tercero por ID' })
-  @ApiOkResponse({ description: 'Tercero encontrado', type: TerceroRespuestaDto })
+  @ApiOkResponse({ description: 'Tercero encontrado', type: RespuestaTerceroDto })
   @ApiBadRequestResponse({
     description: 'Identificador no es un UUID válido',
     type: RespuestaErrorValidacionDto,
@@ -136,7 +143,7 @@ export class TercerosController {
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Actualiza los datos de un tercero' })
-  @ApiOkResponse({ description: 'Tercero actualizado', type: TerceroRespuestaDto })
+  @ApiOkResponse({ description: 'Tercero actualizado', type: RespuestaTerceroDto })
   @ApiBadRequestResponse({
     description: 'Datos de actualización inválidos o identificador no es UUID válido',
     type: RespuestaErrorValidacionDto,

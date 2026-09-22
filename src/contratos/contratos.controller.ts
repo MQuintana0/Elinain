@@ -34,6 +34,13 @@ import {
   RespuestaErrorServidorDto,
   RespuestaErrorValidacionDto,
 } from '../common/dto/respuesta-error.dto';
+import { CrearRespuestaExitosaDto } from '../common/dto/respuesta-exitosa.dto';
+
+const RespuestaContratoDto = CrearRespuestaExitosaDto(ContratoRespuestaDto, 'RespuestaContratoDto');
+const RespuestaPaginaContratosDto = CrearRespuestaExitosaDto(
+  PaginaContratosDto,
+  'RespuestaPaginaContratosDto',
+);
 
 @ApiTags('contratos')
 @ApiBearerAuth()
@@ -72,7 +79,7 @@ export class ContratosController {
   })
   @ApiCreatedResponse({
     description: 'Contrato aperturado exitosamente',
-    type: ContratoRespuestaDto,
+    type: RespuestaContratoDto,
   })
   @ApiBadRequestResponse({
     description:
@@ -114,7 +121,7 @@ export class ContratosController {
   })
   @ApiOkResponse({
     description: 'Listado de contratos obtenido exitosamente',
-    type: PaginaContratosDto,
+    type: RespuestaPaginaContratosDto,
   })
   async listar(
     @Query() paginacion?: PaginacionQueryDto,
@@ -129,7 +136,7 @@ export class ContratosController {
   })
   @ApiOkResponse({
     description: 'Contrato encontrado y retornado',
-    type: ContratoRespuestaDto,
+    type: RespuestaContratoDto,
   })
   @ApiBadRequestResponse({
     description: 'Identificador UUID con formato inválido',
@@ -171,7 +178,7 @@ export class ContratosController {
   })
   @ApiOkResponse({
     description: 'Contrato actualizado exitosamente',
-    type: ContratoRespuestaDto,
+    type: RespuestaContratoDto,
   })
   @ApiBadRequestResponse({
     description:
