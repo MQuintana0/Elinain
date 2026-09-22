@@ -97,7 +97,7 @@ flowchart TD
         ICT --> VP["ValidationPipe Global\n(DTOs estrictos: 400 en español)"]
     end
 
-    subgraph Dominio["3. Módulos de Dominio (Fases 1 a 6)"]
+    subgraph Dominio["3. Módulos de Dominio (Fases 1 a 7 — MVP Completo)"]
         VP -- "/terceros & /fincas" --> TF["Terceros y Fincas\n(PostGIS Point 4326)"]
         VP -- "/contratos" --> CT["Contratos\n(Invariante par porcentajes 100%)"]
         VP -- "/compras" --> CP["Compras\n(Fusión + Recálculo Promedio Simple)"]
@@ -136,8 +136,8 @@ flowchart TD
 
 Todos los endpoints disponibles en el sistema (salud, registro, inicio de sesión, terceros, fincas geolocalizadas, contratos, compras, ventas con cálculo financiero, ciclos de control, costos informativos y dashboard de reportes) están completamente documentados con sus contratos, DTOs de entrada y esquemas de respuesta. Puedes usar la interfaz que prefieras para revisarlos:
 
-| Interfaz       | Entorno Local                      | Producción                                                                                             | Descripción                                                                         |
-| -------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Interfaz       | Entorno Local                      | Producción                                                                                                     | Descripción                                                                         |
+| -------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | **Scalar**     | `http://localhost:3000/referencia` | [`https://elinain-production.up.railway.app/referencia`](https://elinain-production.up.railway.app/referencia) | Interfaz moderna, clara y optimizada para consultar contratos y esquemas.           |
 | **Swagger UI** | `http://localhost:3000/docs`       | [`https://elinain-production.up.railway.app/docs`](https://elinain-production.up.railway.app/docs)             | Interfaz clásica interactiva para probar peticiones directamente contra el backend. |
 
@@ -240,8 +240,11 @@ Una vez levantada la aplicación:
 Toda la suite de pruebas se encuentra alojada en `./test`:
 
 ```bash
-# Ejecutar todas las pruebas (integración y e2e)
+# Ejecutar todas las pruebas (unitarias, integración y e2e)
 pnpm run test
+
+# Ejecutar el flujo de demostración de extremo a extremo (8 pasos del MVP)
+pnpm run test -- test/e2e/demo-flow.e2e-spec.ts
 
 # Verificación de formato y linters
 pnpm run lint
