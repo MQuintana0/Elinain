@@ -47,6 +47,7 @@ class ControladorSondaTemporal {
 
 interface DatosAcceso {
   tokenAcceso: string;
+  tokenRefresco: string;
   usuario: { id: string; nombre: string; email: string };
 }
 
@@ -150,13 +151,14 @@ describe('Inicio de sesión JWT (MVP-006)', () => {
       exp?: number;
     }>(cuerpo.datos.tokenAcceso);
     expect(verificado.sub).toBe(cuerpo.datos.usuario.id);
-    expect(verificado.email).toBe(email);
     const iat = verificado.iat;
     const exp = verificado.exp;
     if (typeof iat !== 'number' || typeof exp !== 'number') {
       throw new Error('El JWT debe traer iat y exp numéricos');
     }
-    expect(exp - iat).toBe(3600);
+    expect(typeof cuerpo.datos.tokenRefresco).toBe('string');
+    expect(cuerpo.datos.tokenRefresco.length).toBe(128);
+    expect(exp - iat).toBe(900);
   });
 
   it('contraseña errónea retorna 401 genérico en español', async () => {

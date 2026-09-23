@@ -12,9 +12,7 @@ export const esquemaSesiones = pgTable('sesiones', {
   revocado: boolean('revocado').notNull().default(false),
   revocado_en: timestamp('revocado_en', { withTimezone: true, mode: 'string' }),
   revocado_motivo: text('revocado_motivo'),
-  creado_en: timestamp('creado_en', { withTimezone: true, mode: 'string' })
-    .notNull()
-    .defaultNow(),
+  creado_en: timestamp('creado_en', { withTimezone: true, mode: 'string' }).notNull().defaultNow(),
   expira_en: timestamp('expira_en', { withTimezone: true, mode: 'string' }).notNull(),
   ip: text('ip'),
   user_agent: text('user_agent'),

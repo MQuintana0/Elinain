@@ -177,7 +177,9 @@ describe('Rotación de Sesiones y Detección de Reuso (REFRESH-004)', () => {
     it('revoca la sesión por su hash con motivo logout', async () => {
       sesionesRepo.revocarPorTokenHash.mockResolvedValue(true);
 
-      const res = await servicio.cerrarSesion({ tokenRefresco: 'token_a_cerrar_12345678901234567890' });
+      const res = await servicio.cerrarSesion({
+        tokenRefresco: 'token_a_cerrar_12345678901234567890',
+      });
       expect(res.exito).toBe(true);
       expect(sesionesRepo.revocarPorTokenHash).toHaveBeenCalledWith(
         calcularHashToken('token_a_cerrar_12345678901234567890'),

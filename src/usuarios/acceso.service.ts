@@ -45,9 +45,7 @@ export class AccesoService {
     const tokenRefresco = generarTokenRefrescoAleatorio();
     const tokenHash = calcularHashToken(tokenRefresco);
     const familiaId = randomUUID();
-    const expiraEn = new Date(
-      Date.now() + obtenerExpiracionRefreshSegundos() * 1000,
-    ).toISOString();
+    const expiraEn = new Date(Date.now() + obtenerExpiracionRefreshSegundos() * 1000).toISOString();
 
     await this.sesionesRepository.crear({
       usuario_id: fila.id,
@@ -97,9 +95,7 @@ export class AccesoService {
 
     const nuevoTokenRefresco = generarTokenRefrescoAleatorio();
     const nuevoTokenHash = calcularHashToken(nuevoTokenRefresco);
-    const nuevaExpiraEn = new Date(
-      ahora + obtenerExpiracionRefreshSegundos() * 1000,
-    ).toISOString();
+    const nuevaExpiraEn = new Date(ahora + obtenerExpiracionRefreshSegundos() * 1000).toISOString();
 
     await this.sesionesRepository.rotarSesion({
       sesionActualId: sesion.id,

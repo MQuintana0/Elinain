@@ -130,10 +130,7 @@ export class UsuariosController {
       marcaTiempo: '2026-09-21T16:00:00.000Z',
     },
   })
-  acceder(
-    @Body() dto: CredencialesAccesoDto,
-    @Req() req: Request,
-  ): Promise<AccesoRespuestaDto> {
+  acceder(@Body() dto: CredencialesAccesoDto, @Req() req: Request): Promise<AccesoRespuestaDto> {
     const ip = req.ip ?? req.socket.remoteAddress;
     const userAgent = req.headers['user-agent'];
     return this.acceso.iniciarSesion(dto, ip, userAgent);
@@ -179,10 +176,7 @@ export class UsuariosController {
       marcaTiempo: '2026-09-21T16:00:00.000Z',
     },
   })
-  refrescar(
-    @Body() dto: RefrescarTokenDto,
-    @Req() req: Request,
-  ): Promise<AccesoRespuestaDto> {
+  refrescar(@Body() dto: RefrescarTokenDto, @Req() req: Request): Promise<AccesoRespuestaDto> {
     const ip = req.ip ?? req.socket.remoteAddress;
     const userAgent = req.headers['user-agent'];
     return this.acceso.refrescar(dto, ip, userAgent);

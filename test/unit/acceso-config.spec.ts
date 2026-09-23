@@ -3,10 +3,7 @@ import {
   obtenerExpiracionRefreshSegundos,
   obtenerSecretoJwt,
 } from '../../src/usuarios/acceso.config';
-import {
-  calcularHashToken,
-  generarTokenRefrescoAleatorio,
-} from '../../src/usuarios/acceso.cripto';
+import { calcularHashToken, generarTokenRefrescoAleatorio } from '../../src/usuarios/acceso.cripto';
 
 describe('Configuración y Criptografía de Acceso (REFRESH-003)', () => {
   const envOriginal = process.env;
