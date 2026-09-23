@@ -13,6 +13,12 @@ export class AccesoRespuestaDto {
   tokenAcceso!: string;
 
   @ApiProperty({
+    description: 'Token de refresco criptográfico opaco para rotación de credenciales',
+    example: '4a6b29f9c0e4818a38a7c29e19d7b42c676d1...',
+  })
+  tokenRefresco!: string;
+
+  @ApiProperty({
     description: 'Perfil mínimo del comerciante autenticado',
     type: UsuarioRegistradoDto,
   })

@@ -30,6 +30,13 @@ export class UsuariosRepository {
     });
   }
 
+  async buscarPorId(id: string): Promise<FilaUsuario | undefined> {
+    return this.bd.ejecutarEnContextoUsuario(id, async (transaccion) => {
+      const filas = await transaccion.select().from(usuarios).where(eq(usuarios.id, id));
+      return filas[0];
+    });
+  }
+
   async crear(datos: DatosCrearUsuario): Promise<FilaUsuario> {
     return this.bd.ejecutarEnContextoAutenticacion(datos.email, async (transaccion) => {
       const filas = await transaccion.insert(usuarios).values(datos).returning();
