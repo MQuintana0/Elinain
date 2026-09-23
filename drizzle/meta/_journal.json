@@ -43,6 +43,13 @@
       "when": 1789997005000,
       "tag": "0005_ciclos_costos",
       "breakpoints": false
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789997006000,
+      "tag": "0006_sesiones_refresh_tokens",
+      "breakpoints": false
     }
   ]
 }

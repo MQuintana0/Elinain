@@ -23,6 +23,7 @@ export default defineConfig({
     'ventas',
     'ciclos',
     'costos',
+    'sesiones',
   ],
   dbCredentials: { url: urlConexion },
 });
