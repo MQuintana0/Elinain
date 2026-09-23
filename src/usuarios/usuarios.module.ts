@@ -12,6 +12,7 @@ import { obtenerExpiracionJwt, obtenerSecretoJwt } from './acceso.config';
 import { AccesoService } from './acceso.service';
 import { UsuariosController } from './usuarios.controller';
 import { AccesoBdUsuarios, BD_USUARIOS } from './usuarios.db';
+import { SesionesRepository } from './sesiones.repository';
 import { UsuariosRepository } from './usuarios.repository';
 import { UsuariosService } from './usuarios.service';
 
@@ -28,9 +29,10 @@ import { UsuariosService } from './usuarios.service';
     AccesoService,
     AccesoGuard,
     UsuariosRepository,
+    SesionesRepository,
     { provide: BD_USUARIOS, useClass: AccesoBdUsuarios },
   ],
-  exports: [UsuariosService, AccesoService, AccesoGuard, JwtModule],
+  exports: [UsuariosService, AccesoService, AccesoGuard, JwtModule, SesionesRepository],
 })
 export class UsuariosModule implements OnApplicationShutdown {
   constructor(@Inject(BD_USUARIOS) private readonly bd: AccesoBdUsuarios) {}

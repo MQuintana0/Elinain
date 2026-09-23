@@ -32,6 +32,26 @@ export class AccesoBdUsuarios {
     });
   }
 
+  ejecutarEnContextoTokenHash<T>(tokenHash: string, trabajo: TrabajoTransaccional<T>): Promise<T> {
+    const conexion = this.obtenerConexion();
+    return conexion.db.transaction(async (transaccion) => {
+      await transaccion.execute(
+        sql`SELECT set_config('app.auth_token_hash', ${tokenHash}, true) AS auth_token_hash`,
+      );
+      return trabajo(transaccion);
+    });
+  }
+
+  ejecutarEnContextoUsuario<T>(usuarioId: string, trabajo: TrabajoTransaccional<T>): Promise<T> {
+    const conexion = this.obtenerConexion();
+    return conexion.db.transaction(async (transaccion) => {
+      await transaccion.execute(
+        sql`SELECT set_config('app.usuario_id', ${usuarioId}, true) AS usuario_id`,
+      );
+      return trabajo(transaccion);
+    });
+  }
+
   private obtenerConexion(): ConexionDb {
     this.obtenerDb();
     if (!this.conexion) {
