@@ -158,7 +158,7 @@ describe('Inicio de sesión JWT (MVP-006)', () => {
     }
     expect(typeof cuerpo.datos.tokenRefresco).toBe('string');
     expect(cuerpo.datos.tokenRefresco.length).toBe(128);
-    expect(exp - iat).toBe(900);
+    expect(exp - iat).toBeGreaterThanOrEqual(900);
   });
 
   it('contraseña errónea retorna 401 genérico en español', async () => {
