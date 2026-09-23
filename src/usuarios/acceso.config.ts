@@ -7,7 +7,8 @@
 import { randomBytes } from 'node:crypto';
 import type { JwtSignOptions } from '@nestjs/jwt';
 
-const EXPIRACION_JWT_DEFECTO_SEGUNDOS = 3600;
+const EXPIRACION_JWT_DEFECTO_SEGUNDOS = 900; // 15 minutos
+const EXPIRACION_REFRESH_DEFECTO_SEGUNDOS = 604800; // 7 días
 
 export function obtenerSecretoJwt(): string {
   const secreto = process.env.JWT_SECRETO?.trim();
@@ -29,7 +30,19 @@ export function obtenerExpiracionJwt(): JwtSignOptions['expiresIn'] {
   if (Number.isInteger(comoNumero) && comoNumero > 0) {
     return comoNumero;
   }
-  // Formatos de texto ('1h', '3600s', '7d'): los valida jsonwebtoken al
+  // Formatos de texto ('15m', '1h', '3600s', '7d'): los valida jsonwebtoken al
   // firmar; un valor inválido lanza error en el login, nunca un token raro.
   return cruda as JwtSignOptions['expiresIn'];
+}
+
+export function obtenerExpiracionRefreshSegundos(): number {
+  const cruda = process.env.JWT_REFRESH_EXPIRA?.trim();
+  if (!cruda) {
+    return EXPIRACION_REFRESH_DEFECTO_SEGUNDOS;
+  }
+  const comoNumero = Number(cruda);
+  if (Number.isInteger(comoNumero) && comoNumero > 0) {
+    return comoNumero;
+  }
+  return EXPIRACION_REFRESH_DEFECTO_SEGUNDOS;
 }
