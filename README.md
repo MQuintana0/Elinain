@@ -47,8 +47,7 @@ Elinain automatiza y centraliza la operativa comercial ganadera:
 - **Ventas y Motor Financiero Puro (`UtilidadService`):** Salida de animales con promedio simple a la fecha de venta, cálculo de utilidad total antes del reparto, distribución exacta entre socios y congelamiento de snapshots históricos inmutables. Cierre automático del contrato al vaciar el lote.
 - **Ciclos y Checkpoints:** Eventos libres de control operativo (pesajes observados y notas cualitativas) con mutación libre en contratos activos.
 - **Costos Informativos:** Registro de fletes de compra y gastos operativos para seguimiento contable, garantizando que nunca restan ni alteran la `utilidad_real`.
-- **Dashboard y Reportes Agregados:** Métricas globales en tiempo real (contratos activos/cerrados, inventario vivo, utilidades acumuladas e historial de ventas) calculadas directamente por agregación SQL sin inventar fórmulas nuevas.
-- **Seguridad:** Autenticación JWT con contraseñas encriptadas con `bcrypt`.
+- **Seguridad y Sesiones:** Autenticación JWT con tokens de corta duración (15 min) y rotación automática de Refresh Tokens (RTR de 7 días). Persistencia de sesiones con hash SHA-256 en base de datos, revocación de familia completa ante detección de reuso y contraseñas cifradas con `bcrypt`.
 
 ---
 
@@ -86,9 +85,9 @@ El flujo implementado cubre el ciclo de vida completo del negocio ganadero con s
 
 ```mermaid
 flowchart TD
-    subgraph Identidad["1. Autenticación y Contexto Tenant"]
-        User["Comerciante Ganadero\n(Cliente HTTP)"] -- "POST /api/v1/usuarios/registro\nPOST /api/v1/usuarios/acceso" --> Auth["Módulo Usuarios\n(bcrypt + JWT)"]
-        Auth -- "Retorna Bearer JWT\n(sub: usuario_id)" --> User
+    subgraph Identidad["1. Autenticación, Sesiones y Contexto Tenant"]
+        User["Comerciante Ganadero\n(Cliente HTTP)"] -- "POST /api/v1/usuarios/registro\nPOST /api/v1/usuarios/acceso\nPOST /api/v1/usuarios/refresh\nPOST /api/v1/usuarios/logout" --> Auth["Módulo Usuarios y Sesiones\n(bcrypt + Access JWT + Refresh RTR)"]
+        Auth -- "Retorna Access JWT (15m)\ny Refresh Token (7d)" --> User
     end
 
     subgraph Seguridad["2. Pipeline Transversal de Seguridad"]
@@ -206,7 +205,8 @@ Sigue estos pasos para clonar, configurar y levantar el proyecto en tu entorno l
    PORT=3000
    NODE_ENV=development
    JWT_SECRETO=secreto-desarrollo-local
-   JWT_EXPIRA=3600s
+   JWT_EXPIRA=900s
+   JWT_REFRESH_EXPIRA=604800
    ```
 
 4. **Levantar base de datos y aplicar migraciones:**
